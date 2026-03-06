@@ -1,4 +1,3 @@
-import { Code2 } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'motion/react';
 
 export function ScrollProgress() {
@@ -7,21 +6,28 @@ export function ScrollProgress() {
 
   return (
     <div className="pointer-events-none fixed left-0 right-0 top-0 z-[2000]">
-      <div className="relative h-[2px] bg-border/65">
+      <div className="relative h-[2.5px] bg-border/70">
         <motion.div
           style={{ scaleX: scrollYProgress }}
-          className="absolute inset-0 origin-left bg-gradient-to-r from-neon to-cyan"
+          className="absolute inset-0 origin-left bg-gradient-to-r from-neon via-cyan/90 to-neon"
         />
 
         <motion.div
           style={{ left: progressX }}
           className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
-          animate={{ y: [-1, 1, -1] }}
-          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <div className="inline-flex items-center gap-1 rounded-md border border-neon/60 bg-bg-alt/95 px-1.5 py-0.5 shadow-[0_0_8px_rgba(0,255,170,0.2)]">
-            <Code2 className="h-2.5 w-2.5 text-neon" />
-            <span className="font-mono text-[9px] uppercase tracking-[0.08em] text-cyan">code</span>
+          <div className="relative h-4 w-4">
+            <motion.span
+              animate={{ scale: [0.85, 1.35, 0.85], opacity: [0.35, 0.82, 0.35] }}
+              transition={{ duration: 1.35, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute inset-0 rounded-full bg-neon/55 blur-[5px]"
+            />
+            <motion.span
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: 'linear' }}
+              className="absolute inset-[1px] rounded-full border border-cyan/70"
+            />
+            <span className="absolute inset-[4px] rounded-full bg-neon shadow-[0_0_10px_rgba(0,255,170,0.8)]" />
           </div>
         </motion.div>
       </div>

@@ -76,7 +76,7 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="relative z-[2] py-14 pb-20 md:py-16 md:pb-20">
+    <section className="relative z-[2] py-14 pb-20 md:py-16 md:pb-20">
       <div className="mx-auto w-full max-w-[1080px] px-6 md:px-8">
         <div className="mx-auto max-w-[920px]">
           <SectionHeading

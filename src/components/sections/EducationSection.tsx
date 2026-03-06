@@ -9,14 +9,14 @@ export function EducationSection() {
   const accent = accentHex[award.accent];
 
   return (
-    <section id="education" className="relative z-[2] py-14 md:py-16">
+    <section className="relative z-[2] py-14 md:py-16">
       <div className="mx-auto w-full max-w-[1080px] px-6 md:px-8">
         <SectionHeading
           tag={sectionHeadings.education.tag}
           title={sectionHeadings.education.title}
           accent={sectionHeadings.education.accent}
-          className="mb-6"
-          titleClassName="text-[clamp(1.45rem,3.3vw,2.15rem)] tracking-[-0.02em]"
+          className="mb-6 md:mb-7"
+          titleClassName="tracking-[-0.02em]"
         />
 
         <motion.article

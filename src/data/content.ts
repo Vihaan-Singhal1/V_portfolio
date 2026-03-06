@@ -1,4 +1,7 @@
 export type Accent = 'neon' | 'cyan' | 'purple' | 'pink' | 'yellow' | 'red';
+export type EffectsTier = 'full' | 'reduced' | 'static';
+export type HeavySectionPolicy = 'intent' | 'nearViewport';
+export type MotionProfile = 'balanced' | 'minimal' | 'showcase';
 
 export const accentHex: Record<Accent, string> = {
   neon: '#00ffaa',
@@ -18,6 +21,15 @@ export const navigationLinks = [
   { id: 'contact', label: '/contact' }
 ] as const;
 
+export const performanceConfig = {
+  effectsTier: 'full' as EffectsTier,
+  heavySectionPolicy: 'intent' as HeavySectionPolicy
+};
+
+export const uiConfig = {
+  motionProfile: 'balanced' as MotionProfile
+};
+
 export const heroContent = {
   status: 'SYSTEM STATUS: ONLINE',
   firstName: 'VIHAAN',
@@ -30,6 +42,9 @@ export const heroContent = {
     'CS & Business @ McMaster'
   ],
   scrambleTarget: 'Applied AI + full-stack systems, built for the real world.',
+  valueLine: 'Production-focused full-stack and applied AI engineer shipping systems that convert ideas into measurable outcomes.',
+  credibilityStrip: ['6+ Awards', '4 Hackathon Wins', '8+ Projects'],
+  proofChips: ['6+ Awards', '4 Hackathon Wins'],
   bio:
     'Developer and applied AI builder focused on machine learning, secure systems, and end-to-end product engineering. I build across AI research, full-stack web applications, cross-platform mobile experiences, and post-quantum cryptography experiments.',
   cta: [
@@ -103,10 +118,10 @@ export const marqueeItems = {
 };
 
 export const stats = [
-  { value: 6, suffix: '+', label: 'Projects Built', accent: 'neon' as Accent },
-  { value: 2, suffix: '', label: 'Hackathon Wins', accent: 'cyan' as Accent },
-  { value: 8, suffix: '+', label: 'Awards and Honors', accent: 'neon' as Accent },
-  { value: 6, suffix: '+', label: 'Years Coding', accent: 'cyan' as Accent }
+  { value: 8, suffix: '+', label: 'Projects Built', accent: 'neon' as Accent },
+  { value: 4, suffix: '+', label: 'Hackathon Wins', accent: 'cyan' as Accent },
+  { value: 6, suffix: '+', label: 'Awards and Honors', accent: 'neon' as Accent },
+  { value: 4, suffix: '+', label: 'Years Coding', accent: 'cyan' as Accent }
 ];
 
 export const terminalLines = [
@@ -203,6 +218,7 @@ export type Project = {
   date: string;
   accent: Accent;
   description: string;
+  impact?: string;
   tech: string[];
   links: ProjectLink[];
 };
@@ -219,6 +235,7 @@ export const projects: Project[] = [
     date: 'Mar 2026',
     accent: 'cyan',
     tech: ['React', 'TypeScript', 'Vite', 'TailwindCSS', 'motion/react'],
+    impact: 'Delivered a recruiter-first experience with smooth interactions and production-ready deployment.',
     description:
       'Designed and engineered this portfolio with high-readability content architecture, motion-driven section reveals, spotlight cards, and optimized visual effects for performance.',
     links: [
@@ -237,6 +254,7 @@ export const projects: Project[] = [
     date: 'Jan 2025',
     accent: 'neon',
     tech: ['React', 'TypeScript', 'Node.js', 'Express', 'Leaflet', 'Geohash'],
+    impact: 'Built and demoed a real-time triage system in under 24 hours at MEC Hackathon.',
     description:
       "Built at McMaster's MEC Hackathon in under 24 hours. Real-time geospatial triage with weighted incident scoring, clustered map views, and geohash-based nearby report detection.",
     links: [
@@ -255,6 +273,7 @@ export const projects: Project[] = [
     date: 'Jan 2023',
     accent: 'cyan',
     tech: ['Python', 'Flask', 'LWE', 'OAuth 2.0', 'SQLite', 'bcrypt'],
+    impact: 'Implemented post-quantum email encryption workflow with deterministic decryption and secure auth.',
     description:
       'Custom LWE-based encryption pipeline with key generation, encoding, encryption, and deterministic decryption. Flask app integrates secure auth plus Gmail OAuth and SMTP delivery.',
     links: [
@@ -273,6 +292,7 @@ export const projects: Project[] = [
     date: 'Jan 2022',
     accent: 'neon',
     tech: ['React.js', 'Vite', 'Ollama', 'Kokoro TTS', 'Web Speech API'],
+    impact: 'Shipped private local AI assistant flow with on-device inference and voice interaction.',
     description:
       'Privacy-first local AI companion with on-device LLM inference through Ollama. Includes voice input/output and persistent local session memory with zero external telemetry.',
     links: [
@@ -291,6 +311,7 @@ export const projects: Project[] = [
     date: 'Mar 2021',
     accent: 'cyan',
     tech: ['YOLOv8', 'OpenCV', 'PyQt6', 'ONNX Runtime', 'MobileNetV2'],
+    impact: 'Built low-latency safety monitoring desktop app with real-time visual alerting.',
     description:
       'Desktop safety intelligence app for person detection, mask compliance, and distancing alerts. Uses threaded PyQt6 processing with YOLOv8 ONNX and calibrated homography distance estimation.',
     links: [
@@ -309,6 +330,7 @@ export const projects: Project[] = [
     date: 'Dec 2019',
     accent: 'neon',
     tech: ['Python', 'Tkinter', 'MySQL', 'py2app'],
+    impact: 'Delivered full clinic workflow desktop software with secure records and local packaging.',
     description:
       'Full-screen desktop system for clinic intake and prescriptions. Includes secure login, record search, linked patient-prescription storage, and macOS packaging with py2app.',
     links: [
@@ -410,7 +432,26 @@ export const techStackGroups: TechStackGroup[] = [
   }
 ];
 
-export const experience = [
+export type ExperienceLink = {
+  label: 'LinkedIn';
+  href: string;
+};
+
+export type Experience = {
+  role: string;
+  org: string;
+  logo?: string;
+  period: string;
+  location: string;
+  description: string;
+  impact?: string;
+  stack?: string[];
+  details?: string[];
+  links?: ExperienceLink[];
+  accent: Accent;
+};
+
+export const experience: Experience[] = [
   {
     role: 'Data & Deployment Engineer',
     org: 'McMaster AI Society',
@@ -419,6 +460,8 @@ export const experience = [
     location: 'Hamilton, Ontario',
     description:
       'Design and manage dataset deployment pipelines for CNN-based deepfake detection systems.',
+    impact: 'Improved dataset deployment reliability and reproducibility for deepfake detection experiments.',
+    stack: ['Python', 'ML Pipelines', 'Data Versioning'],
     details: [
       'Benchmark baseline architectures against GAN and diffusion-generated media to evaluate detection robustness.',
       'Develop structured workflows for dataset preprocessing, versioning, and reproducible experimentation.',
@@ -440,6 +483,8 @@ export const experience = [
     location: 'Hamilton, Ontario',
     description:
       'Research fusion model architectures and integration strategies to improve optimization and performance stability.',
+    impact: 'Advanced baseline fusion experimentation to raise model stability across evaluation conditions.',
+    stack: ['CNN', 'Transformers', 'Model Blending'],
     details: [
       'Evaluate CNN and transformer baselines with model blending strategies.',
       'Analyze trade-offs across accuracy, generalization, and inference efficiency.',
@@ -461,6 +506,8 @@ export const experience = [
     location: 'Hamilton, Ontario',
     description:
       'Support first-year international students transitioning into university life through outreach and community-building.',
+    impact: 'Enabled smoother student onboarding and engagement through structured support initiatives.',
+    stack: ['Community Outreach', 'Program Coordination'],
     details: [
       'Help students solve academic and social adjustment challenges.',
       'Organize engagement initiatives that strengthen cross-cultural student community ties.'
@@ -481,6 +528,8 @@ export const experience = [
     location: 'Doha, Qatar',
     description:
       'Assisted International Baccalaureate Diploma Programme tutors for Computer Science and Math.',
+    impact: 'Accelerated student exam readiness with guided prep material and targeted tutoring support.',
+    stack: ['Computer Science', 'Mathematics', 'Exam Prep'],
     details: [
       'Guided students in algorithmic thinking, data structures, and foundational programming concepts.',
       'Built quizzes and exam-prep resources including concise guides and quick-reference sheets.',
@@ -502,6 +551,8 @@ export const experience = [
     location: 'Remote',
     description:
       'Delivered structured coding instruction using Scratch and introductory Python for primary and middle school students.',
+    impact: 'Built foundational programming skills for beginner learners through curriculum and hands-on robotics.',
+    stack: ['Scratch', 'Python', 'LEGO Robotics', 'Raspberry Pi'],
     details: [
       'Designed a foundational Python curriculum for students transitioning from block-based programming.',
       'Taught robotics fundamentals with LEGO-based kits covering logic, sensors, and control systems.',

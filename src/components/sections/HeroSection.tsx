@@ -1,13 +1,13 @@
 import { type ComponentType, useEffect, useMemo, useRef, useState } from 'react';
-import { motion } from 'motion/react';
-import { ArrowRight, Github, Linkedin, Mail } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'motion/react';
+import { ArrowRight, ChevronDown, Github, Linkedin, Mail } from 'lucide-react';
 
-import { accentHex, heroContent, socialLinks, type Accent } from '../../data/content';
+import { accentHex, heroContent, socialLinks, type Accent, uiConfig } from '../../data/content';
 import { useDeviceTier } from '../../hooks/useDeviceTier';
 import { useTyping } from '../../hooks/useTyping';
+import { motionTokens } from '../../lib/motion';
 import { cn } from '../../lib/utils';
 import { DevpostIcon } from '../shared/DevpostIcon';
-import { GlitchText } from '../shared/GlitchText';
 
 type SocialIcon = 'linkedin' | 'github' | 'devpost' | 'mail';
 
@@ -20,6 +20,16 @@ type CtaButton = {
 
 type SocialIconComponent = ComponentType<{ className?: string }>;
 
+type AmbientAccent = {
+  id: string;
+  left: string;
+  top: string;
+  size: number;
+  tint: string;
+  travelY: number;
+  duration: number;
+};
+
 const iconMap: Record<SocialIcon, SocialIconComponent> = {
   linkedin: Linkedin,
   github: Github,
@@ -27,77 +37,48 @@ const iconMap: Record<SocialIcon, SocialIconComponent> = {
   mail: Mail
 };
 
-function MagneticButton({ button }: { button: CtaButton }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isPointerFine, setIsPointerFine] = useState(true);
+const ambientAccents: AmbientAccent[] = [
+  {
+    id: 'ambient-neon',
+    left: '74%',
+    top: '24%',
+    size: 230,
+    tint: 'var(--neon)',
+    travelY: -10,
+    duration: 9.5
+  },
+  {
+    id: 'ambient-cyan',
+    left: '90%',
+    top: '56%',
+    size: 180,
+    tint: 'var(--cyan)',
+    travelY: -7,
+    duration: 8.4
+  }
+];
 
-  useEffect(() => {
-    const media = window.matchMedia('(pointer: fine)');
-
-    const handleChange = () => {
-      setIsPointerFine(media.matches);
-      if (!media.matches) {
-        setPosition({ x: 0, y: 0 });
-      }
-    };
-
-    handleChange();
-    media.addEventListener('change', handleChange);
-
-    return () => {
-      media.removeEventListener('change', handleChange);
-    };
-  }, []);
-
-  const handleMouseMove = (event: React.MouseEvent) => {
-    if (!isPointerFine || !ref.current) return;
-
-    const rect = ref.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const deltaX = (event.clientX - centerX) * 0.15;
-    const deltaY = (event.clientY - centerY) * 0.15;
-    setPosition({ x: deltaX, y: deltaY });
-  };
-
-  const handleMouseLeave = () => setPosition({ x: 0, y: 0 });
-
+function CtaButton({ button }: { button: CtaButton }) {
   const accent = accentHex[button.accent];
 
   return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      animate={{ x: isPointerFine ? position.x : 0, y: isPointerFine ? position.y : 0 }}
-      transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+    <motion.a
+      href={button.href}
+      whileHover={{ y: motionTokens.hover.y }}
+      transition={{ duration: 0.22, ease: motionTokens.easeOutExpo }}
+      className={cn(
+        'group inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] transition-all duration-200',
+        button.filled ? 'text-bg hover:brightness-105' : 'text-cyan hover:bg-cyan/8'
+      )}
+      style={{
+        borderColor: accent,
+        background: button.filled ? accent : 'transparent',
+        color: button.filled ? 'var(--bg)' : accent
+      }}
     >
-      <motion.a
-        href={button.href}
-        whileHover={{ scale: 1.03, y: -2 }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
-        className={cn(
-          'group inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-mono text-xs uppercase tracking-[0.18em] transition-all duration-300',
-          button.filled
-            ? 'text-bg shadow-[0_0_0_rgba(0,0,0,0)] hover:shadow-neon'
-            : 'text-cyan hover:bg-cyan/10'
-        )}
-        style={{
-          borderColor: accent,
-          background: button.filled ? accent : 'transparent',
-          color: button.filled ? 'var(--bg)' : accent
-        }}
-      >
-        {button.label}
-        <ArrowRight
-          className={cn(
-            'h-4 w-4 transition-transform duration-300',
-            button.filled ? 'group-hover:translate-x-1' : ''
-          )}
-        />
-      </motion.a>
-    </motion.div>
+      {button.label}
+      <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+    </motion.a>
   );
 }
 
@@ -132,59 +113,48 @@ function ScrambleLine({ target }: { target: string }) {
     return () => window.clearInterval(interval);
   }, [target]);
 
-  return <div className="font-mono text-sm text-cyan/90 md:text-base">{text}</div>;
+  return <div className="font-mono text-sm text-cyan/85 md:text-[15px]">{text}</div>;
 }
 
 export function HeroSection() {
+  const sectionRef = useRef<HTMLElement | null>(null);
   const typedRole = useTyping(heroContent.roles, 65, 2100);
   const { isMobile, isTablet, prefersReducedMotion } = useDeviceTier();
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] });
+  const heroLift = useTransform(scrollYProgress, [0, 1], [0, prefersReducedMotion ? 0 : -18]);
+  const credibilityStrip = heroContent.credibilityStrip?.length ? heroContent.credibilityStrip : heroContent.proofChips;
 
-  const floatingParticles = useMemo(
-    () =>
-      Array.from({ length: isMobile ? 0 : isTablet ? 4 : 10 }, (_, index) => ({
-        id: index,
-        left: Math.random() * 100,
-        top: Math.random() * 100,
-        duration: 20 + Math.random() * 16,
-        delay: Math.random() * 2,
-        size: Math.random() > 0.5 ? 3 : 4,
-        color: ['var(--neon)', 'var(--cyan)'][index % 2]
-      })),
-    [isMobile, isTablet]
-  );
+  const visibleAccents = useMemo(() => {
+    if (isMobile || uiConfig.motionProfile === 'minimal') return [];
+    return isTablet ? ambientAccents.slice(0, 1) : ambientAccents;
+  }, [isMobile, isTablet]);
 
   return (
-    <section id="home" className="relative z-[2] flex min-h-screen items-center overflow-hidden pt-20">
+    <section ref={sectionRef} id="home" className="relative z-[2] flex min-h-screen items-center overflow-hidden pt-20">
       <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-[8%] top-[16%] h-[380px] w-[380px] rounded-full bg-[radial-gradient(circle,rgba(0,255,170,0.08),transparent_68%)]" />
+        <div className="absolute right-[-6%] top-[36%] h-[360px] w-[360px] rounded-full bg-[radial-gradient(circle,rgba(0,200,255,0.08),transparent_68%)]" />
+
         {!prefersReducedMotion &&
-          floatingParticles.map((particle) => (
-          <motion.div
-            key={particle.id}
-            className="absolute rounded-full"
-            style={{
-              left: `${particle.left}%`,
-              top: `${particle.top}%`,
-              width: particle.size,
-              height: particle.size,
-              backgroundColor: particle.color,
-              opacity: 0.35
-            }}
-            animate={{
-              y: [0, -24, 0],
-              x: [0, 12, -10, 0],
-              opacity: [0.15, 0.4, 0.2]
-            }}
-            transition={{
-              duration: particle.duration,
-              delay: particle.delay,
-              repeat: Infinity,
-              ease: 'easeInOut'
-            }}
-          />
+          visibleAccents.map((accent) => (
+            <motion.span
+              key={accent.id}
+              className="absolute rounded-full blur-[60px]"
+              style={{
+                left: accent.left,
+                top: accent.top,
+                width: accent.size,
+                height: accent.size,
+                backgroundColor: accent.tint,
+                opacity: 0.08
+              }}
+              animate={{ y: [0, accent.travelY, 0], opacity: [0.06, 0.1, 0.06] }}
+              transition={{ duration: accent.duration, repeat: Infinity, ease: 'easeInOut' }}
+            />
           ))}
       </div>
 
-      <div className="relative mx-auto w-full max-w-[1200px] px-6 md:px-8">
+      <motion.div style={{ y: heroLift }} className="relative mx-auto w-full max-w-[1200px] px-6 md:px-8">
         <motion.div
           initial="hidden"
           animate="visible"
@@ -192,8 +162,8 @@ export function HeroSection() {
             hidden: {},
             visible: {
               transition: {
-                staggerChildren: 0.18,
-                delayChildren: 0.2
+                staggerChildren: 0.14,
+                delayChildren: 0.18
               }
             }
           }}
@@ -201,28 +171,26 @@ export function HeroSection() {
         >
           <motion.div
             variants={{
-              hidden: { opacity: 0, y: 30, filter: 'blur(8px)' },
+              hidden: { opacity: 0, y: 28, filter: 'blur(8px)' },
               visible: { opacity: 1, y: 0, filter: 'blur(0px)' }
             }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-8 inline-flex items-center gap-2 rounded-md border border-neon/30 bg-neon/10 px-4 py-2"
+            transition={{ duration: 0.58, ease: motionTokens.easeOutExpo }}
+            className="mb-7 inline-flex items-center gap-2 rounded-md border border-neon/30 bg-neon/8 px-4 py-2"
           >
-            <span className="h-2 w-2 rounded-full bg-neon shadow-[0_0_10px_rgba(0,255,170,0.8)] animate-pulseSoft" />
-            <span className="font-mono text-[11px] uppercase tracking-[0.26em] text-neon">
-              {heroContent.status}
-            </span>
+            <span className="h-2 w-2 rounded-full bg-neon shadow-[0_0_8px_rgba(0,255,170,0.55)]" />
+            <span className="font-mono text-[11px] uppercase tracking-[0.26em] text-neon">{heroContent.status}</span>
           </motion.div>
 
           <motion.div
             variants={{
-              hidden: { opacity: 0, y: 30, filter: 'blur(10px)' },
+              hidden: { opacity: 0, y: 28, filter: 'blur(9px)' },
               visible: { opacity: 1, y: 0, filter: 'blur(0px)' }
             }}
-            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.62, ease: motionTokens.easeOutExpo }}
             className="mb-8"
           >
             <h1 className="font-display text-[clamp(3.5rem,9vw,6.875rem)] font-black leading-[0.88] tracking-[-0.06em] text-white">
-              <GlitchText>{heroContent.firstName}</GlitchText>
+              {heroContent.firstName}
             </h1>
             <h1 className="font-display text-[clamp(3.5rem,9vw,6.875rem)] font-black leading-[0.88] tracking-[-0.06em] text-transparent [text-stroke:2px_var(--neon)] [-webkit-text-stroke:2px_var(--neon)]">
               {heroContent.lastName}
@@ -231,22 +199,22 @@ export function HeroSection() {
 
           <motion.div
             variants={{
-              hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
+              hidden: { opacity: 0, y: 20, filter: 'blur(7px)' },
               visible: { opacity: 1, y: 0, filter: 'blur(0px)' }
             }}
-            transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.54, ease: motionTokens.easeOutExpo }}
             className="mb-4 h-8 font-mono text-lg text-text"
           >
             {typedRole}
-            <span className="ml-1 font-bold text-neon animate-pulseSoft">▊</span>
+            <span className="ml-1 font-bold text-neon">▊</span>
           </motion.div>
 
           <motion.div
             variants={{
-              hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
+              hidden: { opacity: 0, y: 20, filter: 'blur(7px)' },
               visible: { opacity: 1, y: 0, filter: 'blur(0px)' }
             }}
-            transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.54, ease: motionTokens.easeOutExpo }}
             className="mb-3"
           >
             <ScrambleLine target={heroContent.scrambleTarget} />
@@ -254,34 +222,53 @@ export function HeroSection() {
 
           <motion.p
             variants={{
-              hidden: { opacity: 0, y: 24, filter: 'blur(8px)' },
+              hidden: { opacity: 0, y: 20, filter: 'blur(7px)' },
               visible: { opacity: 1, y: 0, filter: 'blur(0px)' }
             }}
-            transition={{ duration: 0.72, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-8 max-w-[650px] text-[13px] leading-[1.85] text-text md:text-[14px]"
+            transition={{ duration: 0.54, ease: motionTokens.easeOutExpo }}
+            className="mb-6 max-w-[650px] text-[13px] leading-[1.82] text-text md:text-[14px]"
           >
             {heroContent.bio}
           </motion.p>
 
           <motion.div
             variants={{
-              hidden: { opacity: 0, y: 20 },
+              hidden: { opacity: 0, y: 16 },
               visible: { opacity: 1, y: 0 }
             }}
-            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, ease: motionTokens.easeOutExpo }}
+            className="mb-6"
+          >
+            <p className="max-w-[700px] text-[13px] leading-[1.72] text-text md:text-[14px]">{heroContent.valueLine}</p>
+            <div className="mt-3 inline-flex flex-wrap items-center gap-2.5 rounded-md border border-border-bright bg-bg-alt/80 px-2.5 py-2">
+              {credibilityStrip.map((chip, index) => (
+                <span key={chip} className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.13em] text-cyan">
+                  {index > 0 ? <span className="h-[10px] w-px bg-border-bright" /> : null}
+                  {chip}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={{
+              hidden: { opacity: 0, y: 16 },
+              visible: { opacity: 1, y: 0 }
+            }}
+            transition={{ duration: 0.5, ease: motionTokens.easeOutExpo }}
             className="mb-9 flex flex-wrap items-center gap-4"
           >
             {heroContent.cta.map((button) => (
-              <MagneticButton key={button.label} button={button} />
+              <CtaButton key={button.label} button={button} />
             ))}
           </motion.div>
 
           <motion.div
             variants={{
-              hidden: { opacity: 0, y: 14 },
+              hidden: { opacity: 0, y: 12 },
               visible: { opacity: 1, y: 0 }
             }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.48, ease: motionTokens.easeOutExpo }}
             className="flex gap-3"
           >
             {socialLinks.map((item) => {
@@ -292,8 +279,9 @@ export function HeroSection() {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ y: -5, scale: 1.03 }}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border bg-card/75 text-dim transition-all duration-300 hover:border-cyan hover:text-cyan hover:shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+                  whileHover={{ y: motionTokens.hover.y }}
+                  transition={{ duration: motionTokens.hover.duration, ease: motionTokens.easeOutExpo }}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-border bg-card/75 text-dim transition-all duration-200 hover:border-cyan/45 hover:text-cyan"
                   aria-label={item.label}
                 >
                   <Icon className="h-4 w-4" />
@@ -302,19 +290,33 @@ export function HeroSection() {
             })}
           </motion.div>
         </motion.div>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.4, duration: 0.7 }}
-        className="pointer-events-none absolute bottom-8 left-1/2 z-[3] -translate-x-1/2 animate-floaty"
-      >
-        <div className="flex flex-col items-center gap-2">
-          <span className="font-mono text-[10px] uppercase tracking-[0.4em] text-dim">scroll</span>
-          <div className="h-10 w-px bg-gradient-to-b from-neon to-transparent" />
-        </div>
       </motion.div>
+
+      <motion.a
+        href="#education"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.86, duration: 0.45, ease: motionTokens.easeOutExpo }}
+        className="absolute bottom-7 left-1/2 z-[3] flex -translate-x-1/2 flex-col items-center gap-2"
+        aria-label="Scroll to next section"
+      >
+        <div className="relative flex h-12 w-7 items-start justify-center rounded-full border border-cyan/50 bg-bg-alt/80 p-1.5 backdrop-blur-sm">
+          <motion.span
+            animate={prefersReducedMotion ? { y: 0, opacity: 0.9 } : { y: [0, 16, 0], opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 1.8, repeat: prefersReducedMotion ? 0 : Infinity, ease: 'easeInOut' }}
+            className="h-2 w-2 rounded-full bg-neon shadow-[0_0_8px_rgba(0,255,170,0.55)]"
+          />
+        </div>
+
+        <motion.div
+          animate={prefersReducedMotion ? { y: 0 } : { y: [0, 3, 0] }}
+          transition={{ duration: 1.45, repeat: prefersReducedMotion ? 0 : Infinity, ease: 'easeInOut' }}
+          className="flex flex-col items-center text-cyan"
+        >
+          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="-mt-2 h-4 w-4 opacity-70" />
+        </motion.div>
+      </motion.a>
     </section>
   );
 }

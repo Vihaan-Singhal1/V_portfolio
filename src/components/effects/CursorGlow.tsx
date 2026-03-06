@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react';
 
 import { useMouse } from '../../hooks/useMouse';
 
-export function CursorGlow() {
+export function CursorGlow({ enabled = true }: { enabled?: boolean }) {
   const mouse = useMouse(15);
-  const [enabled, setEnabled] = useState(false);
+  const [pointerEnabled, setPointerEnabled] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia('(pointer: fine)');
 
     const handleChange = () => {
-      setEnabled(media.matches);
+      setPointerEnabled(media.matches);
     };
 
     handleChange();
@@ -19,7 +19,7 @@ export function CursorGlow() {
     return () => media.removeEventListener('change', handleChange);
   }, []);
 
-  if (!enabled) return null;
+  if (!enabled || !pointerEnabled) return null;
 
   return (
     <div

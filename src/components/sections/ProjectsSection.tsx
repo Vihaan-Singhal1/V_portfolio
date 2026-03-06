@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { ExternalLink, Github, MoveUpRight } from 'lucide-react';
 
 import { accentHex, projects, sectionHeadings, type Project, type ProjectLink } from '../../data/content';
+import { motionTokens } from '../../lib/motion';
 import { SpotlightCard } from '../shared/SpotlightCard';
 import { SectionHeading } from '../shared/SectionHeading';
 
@@ -59,7 +60,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
-      transition={{ delay: index * 0.05, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ delay: index * 0.05, duration: motionTokens.card.duration, ease: motionTokens.easeOutExpo }}
       whileHover={{ y: -1.5 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -122,7 +123,15 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               {project.title}
             </h3>
             <p className="mt-1 font-mono text-[9px] uppercase tracking-[0.1em] text-dim">{project.subtitle}</p>
-            <p className="mt-2.5 text-[13px] leading-[1.7] text-text">{project.description}</p>
+            <p className="mt-2.5 font-mono text-[9.5px] uppercase tracking-[0.12em] text-cyan">
+              Outcome {'->'} {project.impact ?? 'Production-ready shipping milestone'}
+            </p>
+            <p className="mt-2 text-[13px] leading-[1.7] text-text [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] overflow-hidden">
+              Scope {'->'} {project.description}
+            </p>
+            <p className="mt-2 font-mono text-[9.5px] uppercase tracking-[0.12em] text-dim [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:1] overflow-hidden">
+              Stack {'->'} {project.tech.join(' · ')}
+            </p>
 
             <div className="mt-3.5 flex flex-wrap gap-1.5">
               {project.tech.map((tech) => (
@@ -158,19 +167,19 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 
 export function ProjectsSection() {
   return (
-    <section id="projects" className="relative z-[2] py-14 md:py-16">
+    <section className="relative z-[2] py-14 md:py-16">
       <div className="mx-auto w-full max-w-[1080px] px-6 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: motionTokens.section.duration, ease: motionTokens.easeOutExpo }}
         >
           <SectionHeading
             tag={sectionHeadings.projects.tag}
             title={sectionHeadings.projects.title}
             accent={sectionHeadings.projects.accent}
-            className="mb-2.5"
+            className="mb-6 md:mb-7"
             titleClassName="text-[clamp(1.55rem,3.5vw,2.35rem)]"
           />
           <p className="mb-6 max-w-[680px] text-[14px] leading-[1.72] text-text">

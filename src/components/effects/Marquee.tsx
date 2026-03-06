@@ -1,4 +1,4 @@
-import { CSSProperties, useMemo } from 'react';
+import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 
 import { cn } from '../../lib/utils';
 
@@ -8,12 +8,48 @@ type MarqueeProps = {
   reverse?: boolean;
   color: string;
   className?: string;
+  pauseWhenOffscreen?: boolean;
 };
 
-export function Marquee({ items, speed = 35, reverse = false, color, className }: MarqueeProps) {
+export function Marquee({
+  items,
+  speed = 35,
+  reverse = false,
+  color,
+  className,
+  pauseWhenOffscreen = true
+}: MarqueeProps) {
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
   const text = useMemo(() => {
     return items.join('  ///  ');
   }, [items]);
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => setReducedMotion(media.matches);
+    onChange();
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!pauseWhenOffscreen || reducedMotion) return;
+    const node = rootRef.current;
+    if (!node || !('IntersectionObserver' in window)) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        setIsVisible(entry?.isIntersecting ?? true);
+      },
+      { rootMargin: '80px 0px', threshold: 0.01 }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [pauseWhenOffscreen, reducedMotion]);
 
   const styles = {
     '--marquee-color': color,
@@ -22,6 +58,7 @@ export function Marquee({ items, speed = 35, reverse = false, color, className }
 
   return (
     <div
+      ref={rootRef}
       className={cn(
         'relative z-[2] overflow-hidden whitespace-nowrap border-y py-2.5',
         'border-[color:color-mix(in_srgb,var(--marquee-color)_28%,transparent)]',
@@ -40,7 +77,10 @@ export function Marquee({ items, speed = 35, reverse = false, color, className }
             'flex w-max items-center',
             reverse ? 'animate-marqueeR' : 'animate-marquee'
           )}
-          style={{ animationDuration: `var(--marquee-duration)` }}
+          style={{
+            animationDuration: `var(--marquee-duration)`,
+            animationPlayState: reducedMotion || (pauseWhenOffscreen && !isVisible) ? 'paused' : 'running'
+          }}
         >
           <span className="px-8 font-mono text-[12px] font-bold uppercase tracking-[0.28em] text-[var(--marquee-color)]">
             {text}

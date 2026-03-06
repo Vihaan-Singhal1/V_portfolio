@@ -43,6 +43,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--neon);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--neon) 28%, transparent);
+}
+
 ::selection {
   background: color-mix(in srgb, var(--neon) 26%, transparent);
   color: var(--neon);
@@ -185,6 +195,101 @@ body {
   font-size: 13.5px;
   line-height: 1.78;
   color: var(--text);
+}
+
+.df-samples {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.df-intro-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.df-preview-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.df-sample-button {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 1 / 1;
+}
+
+.df-sample-shell {
+  width: 100%;
+  max-width: none;
+}
+
+.df-side-panel {
+  position: sticky;
+  top: 7.25rem;
+}
+
+
+@media (max-width: 540px) {
+  .df-terminal-bar {
+    justify-content: space-between !important;
+  }
+
+  .df-terminal-meta {
+    width: 100%;
+    justify-content: center !important;
+  }
+
+  .df-round-stats {
+    justify-content: center !important;
+  }
+
+  .df-intro-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .df-preview-row {
+    grid-template-columns: 1fr;
+  }
+
+  .df-samples {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .df-sample-shell {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .df-sample-button {
+    width: 100% !important;
+    max-width: 320px;
+    margin-inline: auto;
+  }
+
+  .df-sample-visual {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+@media (min-width: 541px) and (max-width: 820px) {
+  .df-intro-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .df-preview-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .df-samples {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .df-side-panel {
+    position: static;
+  }
 }
 
 @media (min-width: 768px) {

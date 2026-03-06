@@ -267,13 +267,13 @@ export function TechStackSection() {
   const intent = skillInsights[activeSkill]?.intent ?? 'Apply this capability in performant, reliable production workflows.';
 
   return (
-    <section id="tech-stack" className="relative z-[2] py-14 md:py-16">
+    <section className="relative z-[2] py-14 md:py-16">
       <div className="mx-auto w-full max-w-[1080px] px-6 md:px-8">
         <SectionHeading
           tag={sectionHeadings.stack.tag}
           title={sectionHeadings.stack.title}
           accent={sectionHeadings.stack.accent}
-          className="mb-2.5"
+          className="mb-6 md:mb-7"
           titleClassName="text-[clamp(1.55rem,3.5vw,2.35rem)]"
         />
 

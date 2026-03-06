@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { EffectsTier } from '../../data/content';
 
 type Particle = {
   x: number;
@@ -12,17 +13,20 @@ type Particle = {
 
 const COLORS = ['0,255,170', '0,200,255'];
 
-function getParticleCount(width: number, reduced: boolean) {
-  if (reduced) return 16;
+function getParticleCount(width: number, reducedMotion: boolean, tier: EffectsTier) {
+  if (tier === 'static') return 0;
+  if (reducedMotion || tier === 'reduced') return width < 768 ? 10 : 14;
   if (width < 768) return 18;
   if (width < 1100) return 28;
   return 44;
 }
 
-export function ParticleField() {
+export function ParticleField({ tier = 'full' }: { tier?: EffectsTier }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
+    if (tier === 'static') return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -31,9 +35,9 @@ export function ParticleField() {
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    let particleCount = getParticleCount(window.innerWidth, reducedMotion);
-    let linesEnabled = window.innerWidth >= 1100 && !reducedMotion;
-    let frameInterval = window.innerWidth < 1100 ? 30 : 16;
+    let particleCount = getParticleCount(window.innerWidth, reducedMotion, tier);
+    let linesEnabled = window.innerWidth >= 1100 && !reducedMotion && tier === 'full';
+    let frameInterval = tier === 'reduced' ? 36 : window.innerWidth < 1100 ? 30 : 16;
 
     const createParticles = (count: number): Particle[] =>
       Array.from({ length: count }, (_, index) => ({
@@ -68,14 +72,14 @@ export function ParticleField() {
       canvas.style.height = `${height}px`;
       context.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-      const nextCount = getParticleCount(width, reducedMotion);
+      const nextCount = getParticleCount(width, reducedMotion, tier);
       if (nextCount !== particleCount) {
         particleCount = nextCount;
         particles = createParticles(nextCount);
       }
 
-      linesEnabled = width >= 1100 && !reducedMotion;
-      frameInterval = width < 1100 ? 30 : 16;
+      linesEnabled = width >= 1100 && !reducedMotion && tier === 'full';
+      frameInterval = tier === 'reduced' ? 36 : width < 1100 ? 30 : 16;
     };
 
     const onMove = (event: MouseEvent) => {
@@ -172,7 +176,7 @@ export function ParticleField() {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseout', onLeave);
     };
-  }, []);
+  }, [tier]);
 
   return <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 z-0" aria-hidden="true" />;
 }
