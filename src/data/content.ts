@@ -207,10 +207,16 @@ export type ProjectLink = {
   href: string;
 };
 
+export type ProjectMedia = {
+  src: string;
+  label?: string;
+};
+
 export type Project = {
   id: string;
   number: string;
   image: string;
+  gallery?: ProjectMedia[];
   title: string;
   subtitle: string;
   category: string;
@@ -244,8 +250,33 @@ export const projects: Project[] = [
     ]
   },
   {
-    id: 'lifesaver',
+    id: 'snapaid',
     number: '02',
+    image: '/assets/projects/snapaid/detail.png',
+    gallery: [
+      { src: '/assets/projects/snapaid/detail.png', label: 'Report Detail' },
+      { src: '/assets/projects/snapaid/doctor.png', label: 'Doctor Dashboard' },
+      { src: '/assets/projects/snapaid/prescription.png', label: 'Prescription' },
+      { src: '/assets/projects/snapaid/summary.png', label: 'Triage Summary' }
+    ],
+    title: 'SnapAid',
+    subtitle: 'AI-Powered Injury Reporting & Triage App',
+    category: 'MOBILE / HEALTH AI',
+    status: 'active',
+    date: 'Jan 2026',
+    accent: 'neon',
+    tech: ['Flutter', 'Dart', 'Supabase', 'PostgreSQL', 'FastAPI', 'Python'],
+    impact: 'Built a guided injury triage flow that generates actionable care reports in seconds.',
+    description:
+      'Cross-platform app for injury capture, guided questionnaire, care-level classification, PDF export, and doctor-invite workflows with AI-assisted report rewriting.',
+    links: [
+      { label: 'Live Demo', href: 'https://github.com/Vihaan-Singhal1/SnapAid' },
+      { label: 'GitHub', href: 'https://github.com/Vihaan-Singhal1/SnapAid' }
+    ]
+  },
+  {
+    id: 'lifesaver',
+    number: '03',
     image: '/assets/projects/lifesaver/lifesaver.jpeg',
     title: 'LifeSaver',
     subtitle: 'Real-Time Emergency Incident Triage Platform',
@@ -264,7 +295,7 @@ export const projects: Project[] = [
   },
   {
     id: 'quantamail',
-    number: '03',
+    number: '04',
     image: '/assets/projects/quantamail/quantamail.jpeg',
     title: 'QuantaMail',
     subtitle: 'Post-Quantum Encrypted Email System',
@@ -283,7 +314,7 @@ export const projects: Project[] = [
   },
   {
     id: 'sanctuary',
-    number: '04',
+    number: '05',
     image: '/assets/projects/sanctuary/sanctuary.jpeg',
     title: 'Sanctuary',
     subtitle: 'Local AI Companion',
@@ -302,7 +333,7 @@ export const projects: Project[] = [
   },
   {
     id: 'safesight-ai',
-    number: '05',
+    number: '06',
     image: '/assets/projects/safesight-ai/Safesight.jpeg',
     title: 'SafeSight AI',
     subtitle: 'Real-Time Safety Intelligence System',
@@ -321,7 +352,7 @@ export const projects: Project[] = [
   },
   {
     id: 'cms',
-    number: '06',
+    number: '07',
     image: '/assets/projects/cms/cms.png',
     title: 'Clinic Management System (CMS)',
     subtitle: 'Desktop clinic workflow manager',
@@ -599,7 +630,7 @@ export const contact = {
       accent: 'cyan' as Accent
     }
   ],
-  locationLine: 'Hamilton, Ontario, Canada - +1 647 464 5032'
+  locationLine: 'Hamilton, Ontario, Canada'
 };
 
 export const footer = {
