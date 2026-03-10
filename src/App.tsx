@@ -37,6 +37,11 @@ const ExperienceSection = lazy(async () => {
   return { default: module.ExperienceSection };
 });
 
+const PublicationsSection = lazy(async () => {
+  const module = await import('./components/sections/PublicationsSection');
+  return { default: module.PublicationsSection };
+});
+
 const TechStackSection = lazy(async () => {
   const module = await import('./components/sections/TechStackSection');
   return { default: module.TechStackSection };
@@ -135,6 +140,12 @@ export default function App() {
         <SectionMountGate id="tech-stack" rootMargin="360px 0px" minHeight={180}>
           <Suspense fallback={<SectionLoader />}>
             <TechStackSection />
+          </Suspense>
+        </SectionMountGate>
+
+        <SectionMountGate id="publications" rootMargin="360px 0px" minHeight={160}>
+          <Suspense fallback={<SectionLoader />}>
+            <PublicationsSection />
           </Suspense>
         </SectionMountGate>
 

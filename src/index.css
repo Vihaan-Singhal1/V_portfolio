@@ -309,3 +309,9 @@ textarea:focus-visible,
     scroll-behavior: auto !important;
   }
 }
+
+body.project-lightbox-open nav[data-app-navbar='true'] {
+  transform: translateY(-135%);
+  opacity: 0;
+  pointer-events: none;
+}

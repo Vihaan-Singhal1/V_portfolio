@@ -7,8 +7,8 @@ import { motionTokens } from '../../lib/motion';
 import { cn } from '../../lib/utils';
 
 const desktopUtilities = [
-  { label: 'Resume', href: '/resume.pdf' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/vihaansinghal-21baa6379' }
+  { label: 'Resume', href: '/assets/resume/vihaan_resume_v1.pdf' },
+  { label: 'LinkedIn', href: 'https://linkedin.com/in/vihaan-singhal-21baa6379' }
 ] as const;
 
 export function Navbar() {
@@ -127,15 +127,17 @@ export function Navbar() {
               setActiveId(link.id);
             }}
             className={cn(
-              'relative rounded-sm px-1.5 py-1 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors duration-200',
-              isActive ? 'text-neon' : 'text-dim hover:text-neon'
+              'group relative rounded-md border px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.16em] transition-all duration-200',
+              isActive
+                ? 'border-neon/45 bg-neon/12 text-neon shadow-[0_0_14px_rgba(0,255,170,0.1)]'
+                : 'border-transparent text-dim hover:border-border-bright hover:text-text'
             )}
           >
             {link.label}
             {isActive ? (
               <motion.span
                 layoutId="nav-active-indicator"
-                className="absolute -bottom-1 left-1.5 right-1.5 h-[2px] rounded-full bg-neon"
+                className="absolute inset-x-2 -bottom-[1px] h-[1px] rounded-full bg-neon"
                 transition={{ duration: motionTokens.nav.duration, ease: motionTokens.easeOutExpo }}
               />
             ) : null}
@@ -146,91 +148,97 @@ export function Navbar() {
   );
 
   return (
-    <nav
-      className={cn(
-        'fixed left-0 right-0 top-0 z-[1000] border-b transition-all duration-300',
-        scrolled ? 'border-border-bright bg-[rgba(3,3,3,0.92)] backdrop-blur-xl' : 'border-transparent bg-[rgba(3,3,3,0.28)] backdrop-blur-sm'
-      )}
-    >
-      <div
-        className={cn(
-          'mx-auto flex w-full max-w-[1240px] items-center justify-between gap-4 px-6 transition-all duration-300 md:px-8',
-          scrolled ? 'py-2.5' : 'py-4'
-        )}
-      >
-        <a
-          href="#home"
-          onClick={() => setActiveId('home')}
+    <nav data-app-navbar="true" className="fixed left-0 right-0 top-0 z-[1000] transition-[transform,opacity] duration-300 ease-out">
+      <div className="mx-auto w-full max-w-[1240px] px-4 pt-3 md:px-6">
+        <div
           className={cn(
-            'rounded-md border border-neon font-display font-extrabold tracking-wide text-neon transition-all duration-200',
-            scrolled ? 'px-3 py-1.5 text-[1rem]' : 'px-3.5 py-1.5 text-lg md:text-[1.15rem]'
+            'rounded-xl border transition-all duration-300',
+            scrolled
+              ? 'border-border-bright bg-[rgba(4,4,4,0.9)] shadow-[0_10px_30px_rgba(0,0,0,0.42)] backdrop-blur-xl'
+              : 'border-border-bright/70 bg-[rgba(3,3,3,0.64)] backdrop-blur-md'
           )}
         >
-          VS<span className="text-dim">.</span>dev
-        </a>
-
-        <div className="hidden items-center gap-6 md:flex">{desktopLinks}</div>
-
-        <div className="hidden items-center gap-2 lg:flex">
-          {desktopUtilities.map((action) => (
-            <a
-              key={action.label}
-              href={action.href}
-              target={action.href.startsWith('#') ? undefined : '_blank'}
-              rel={action.href.startsWith('#') ? undefined : 'noopener noreferrer'}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border-bright bg-bg-alt/80 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-dim transition-all duration-200 hover:border-cyan/40 hover:text-cyan"
-            >
-              {action.label}
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          ))}
-        </div>
-
-        <button
-          type="button"
-          aria-label="Toggle navigation"
-          onClick={() => setOpen((prev) => !prev)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-dim transition-colors hover:border-neon/40 hover:text-neon md:hidden"
-        >
-          {open ? <X size={18} /> : <Menu size={18} />}
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: motionTokens.nav.duration, ease: motionTokens.easeOutExpo }}
-            className="border-t border-border bg-bg-alt/96 px-6 py-5 backdrop-blur-xl md:hidden"
+          <div
+            className={cn(
+              'mx-auto flex w-full items-center justify-between gap-4 px-4 transition-all duration-300 md:px-5',
+              scrolled ? 'py-2' : 'py-3'
+            )}
           >
-            <div className="flex flex-col gap-2">
-              {navigationLinks.map((link) => {
-                const isActive = activeId === link.id;
-                return (
-                  <a
-                    key={link.id}
-                    href={`#${link.id}`}
-                    onClick={() => {
-                      setOpen(false);
-                      setActiveId(link.id);
-                    }}
-                    className={cn(
-                      'rounded-md px-3 py-3 font-mono text-[11px] uppercase tracking-[0.22em] transition-colors',
-                      isActive
-                        ? 'border border-neon/35 bg-neon/10 text-neon'
-                        : 'border border-transparent text-text hover:border-border-bright hover:text-neon'
-                    )}
-                  >
-                    {link.label}
-                  </a>
-                );
-              })}
+            <a
+              href="#home"
+              onClick={() => setActiveId('home')}
+              className={cn(
+                'rounded-lg border border-neon/75 bg-[rgba(0,255,170,0.06)] font-display font-extrabold tracking-wide text-neon transition-all duration-200',
+                scrolled ? 'px-3 py-1.5 text-[0.98rem]' : 'px-3.5 py-1.5 text-lg md:text-[1.12rem]'
+              )}
+            >
+              VS<span className="text-dim">.</span>dev
+            </a>
+
+            <div className="hidden items-center gap-2.5 md:flex">{desktopLinks}</div>
+
+            <div className="hidden items-center gap-2 lg:flex">
+              {desktopUtilities.map((action) => (
+                <a
+                  key={action.label}
+                  href={action.href}
+                  target={action.href.startsWith('#') ? undefined : '_blank'}
+                  rel={action.href.startsWith('#') ? undefined : 'noopener noreferrer'}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border-bright bg-bg-alt/92 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-dim transition-all duration-200 hover:border-cyan/45 hover:text-cyan hover:shadow-[0_0_14px_rgba(0,200,255,0.16)]"
+                >
+                  {action.label}
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              ))}
             </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+
+            <button
+              type="button"
+              aria-label="Toggle navigation"
+              onClick={() => setOpen((prev) => !prev)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border-bright bg-bg-alt/80 text-dim transition-colors hover:border-neon/40 hover:text-neon md:hidden"
+            >
+              {open ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {open ? (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: motionTokens.nav.duration, ease: motionTokens.easeOutExpo }}
+                className="border-t border-border-bright bg-bg-alt/95 px-4 pb-4 pt-3 backdrop-blur-xl md:hidden"
+              >
+                <div className="flex flex-col gap-2">
+                  {navigationLinks.map((link) => {
+                    const isActive = activeId === link.id;
+                    return (
+                      <a
+                        key={link.id}
+                        href={`#${link.id}`}
+                        onClick={() => {
+                          setOpen(false);
+                          setActiveId(link.id);
+                        }}
+                        className={cn(
+                          'rounded-md px-3 py-3 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors',
+                          isActive
+                            ? 'border border-neon/35 bg-neon/10 text-neon'
+                            : 'border border-transparent text-text hover:border-border-bright hover:text-neon'
+                        )}
+                      >
+                        {link.label}
+                      </a>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
+      </div>
     </nav>
   );
 }

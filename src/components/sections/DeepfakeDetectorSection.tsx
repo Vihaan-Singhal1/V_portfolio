@@ -48,19 +48,35 @@ const C = {
   yellow: '#febc2e'
 } as const;
 
+const DEFAULT_REAL_SAMPLE_FALLBACK = '/assets/deepfake/real-unsplash-man-1.jpg';
+const DEFAULT_FAKE_SAMPLE_FALLBACK = '/assets/deepfake/fake-sukeban.png';
+const GENERIC_SAMPLE_FALLBACK = '/assets/deepfake/fake-sukeban.png';
+
+function normalizeAssetPath(source: string) {
+  return source.replace(/^https?:\/\/[^/]+/i, '').split('?')[0];
+}
+
+function getSampleFallback(src: string) {
+  const normalized = src.toLowerCase();
+  if (normalized.includes('/fake-') || normalized.includes('/synthetic') || normalized.includes('stable')) {
+    return DEFAULT_FAKE_SAMPLE_FALLBACK;
+  }
+  return DEFAULT_REAL_SAMPLE_FALLBACK;
+}
+
 const realSamples: Record<string, SampleAsset> = {
   narasimhachar: {
-    src: '/assets/deepfake/optimized/real-narasimhachar.jpg',
+    src: '/assets/deepfake/real-narasimhachar.jpg',
     label: 'Archival portrait',
     objectPosition: '50% 24%'
   },
   irvingBerlin: {
-    src: '/assets/deepfake/optimized/real-irving-berlin.jpg',
+    src: '/assets/deepfake/real-irving-berlin.jpg',
     label: 'Studio portrait',
     objectPosition: '50% 18%'
   },
   princesseMonaco: {
-    src: '/assets/deepfake/optimized/real-princesse-monaco.jpg',
+    src: '/assets/deepfake/real-princesse-monaco.jpg',
     label: 'Editorial portrait',
     objectPosition: '50% 16%'
   },
@@ -83,17 +99,17 @@ const realSamples: Record<string, SampleAsset> = {
 
 const fakeSamples: Record<string, SampleAsset> = {
   stableDiffusionPortrait: {
-    src: '/assets/deepfake/fake-stable-diffusion.webp',
+    src: '/assets/deepfake/fake-stable-diffusion.png',
     label: 'Synthetic portrait',
     objectPosition: '50% 30%'
   },
   sukebanPortrait: {
-    src: '/assets/deepfake/optimized/fake-sukeban.jpg',
+    src: '/assets/deepfake/fake-sukeban.png',
     label: 'AI illustration portrait',
     objectPosition: '50% 20%'
   },
   graphitePortrait: {
-    src: '/assets/deepfake/optimized/fake-graphite.jpg',
+    src: '/assets/deepfake/fake-graphite.png',
     label: 'Graphite-style generation',
     objectPosition: '50% 22%'
   }
@@ -295,11 +311,26 @@ function DeepfakeDetector({ onExit }: { onExit: () => void }) {
   const [picked, setPicked] = useState<'left' | 'right' | null>(null);
   const [hasPlayed, setHasPlayed] = useState(false);
   const [hardMode, setHardMode] = useState(false);
+  const [brokenSources, setBrokenSources] = useState<Record<string, true>>({});
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const nextRoundTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeRound = deck[roundIndex] ?? null;
   const roundTime = hardMode ? 7 : 10;
+
+  const resolveSampleSource = useCallback(
+    (source: string) => {
+      const normalized = normalizeAssetPath(source);
+      if (!brokenSources[normalized]) return source;
+
+      const preferredFallback = getSampleFallback(normalized);
+      const preferredFallbackPath = normalizeAssetPath(preferredFallback);
+      if (!brokenSources[preferredFallbackPath]) return preferredFallback;
+
+      return GENERIC_SAMPLE_FALLBACK;
+    },
+    [brokenSources]
+  );
 
   const resetTimers = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -662,10 +693,22 @@ function DeepfakeDetector({ onExit }: { onExit: () => void }) {
                     >
                       <img
                         className="df-sample-visual"
-                        src={sample.src}
+                        src={resolveSampleSource(sample.src)}
                         alt={`${side === 'left' ? 'Sample A' : 'Sample B'} - ${sample.label}`}
                         loading="lazy"
                         decoding="async"
+                        onError={(event) => {
+                          const failedSrc = event.currentTarget.currentSrc || event.currentTarget.src;
+                          if (!failedSrc) return;
+
+                          const normalized = normalizeAssetPath(failedSrc);
+                          if (normalized === GENERIC_SAMPLE_FALLBACK) return;
+
+                          setBrokenSources((previous) => ({
+                            ...previous,
+                            [normalized]: true
+                          }));
+                        }}
                         style={{
                           display: 'block',
                           width: '100%',
@@ -906,9 +949,9 @@ export function DeepfakeDetectorSection() {
 
     const preload = () => {
       const previewAssets = [
-        '/assets/deepfake/optimized/real-narasimhachar.jpg',
-        '/assets/deepfake/optimized/real-irving-berlin.jpg',
-        '/assets/deepfake/optimized/fake-sukeban.jpg'
+        '/assets/deepfake/real-narasimhachar.jpg',
+        '/assets/deepfake/real-irving-berlin.jpg',
+        '/assets/deepfake/fake-sukeban.png'
       ];
 
       previewAssets.forEach((asset) => {
@@ -952,10 +995,10 @@ export function DeepfakeDetectorSection() {
             <div className="rounded-2xl border border-border-bright bg-card/92 p-6 md:p-8">
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan">interactive_demo</p>
               <h3 className="mt-3 font-display text-[1.7rem] font-extrabold tracking-[-0.03em] text-white md:text-[2.1rem]">
-                Deepfake Detector Playground
+                Deepfake Detector Game
               </h3>
               <p className="mt-3 max-w-[760px] text-[14px] leading-[1.75] text-text">
-                Lightweight by default. Launch the full detector only when you want to run the forensic rounds and heatmap reveal.
+                This section is an interactive game. Lightweight by default, and it launches the full detector only when you want to run the forensic rounds and heatmap reveal.
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-2.5">
                 <span className="rounded-md border border-border-bright bg-bg-alt px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-dim">

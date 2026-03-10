@@ -15,8 +15,8 @@ export const accentHex: Record<Accent, string> = {
 export const navigationLinks = [
   { id: 'home', label: '/home' },
   { id: 'education', label: '/education' },
-  { id: 'projects', label: '/projects' },
   { id: 'experience', label: '/experience' },
+  { id: 'projects', label: '/projects' },
   { id: 'tech-stack', label: '/tech-stack' },
   { id: 'contact', label: '/contact' }
 ] as const;
@@ -66,7 +66,7 @@ export const heroContent = {
 export const socialLinks = [
   {
     label: 'LinkedIn',
-    href: 'https://linkedin.com/in/vihaansinghal-21baa6379',
+    href: 'https://linkedin.com/in/vihaan-singhal-21baa6379',
     icon: 'linkedin' as const
   },
   {
@@ -156,6 +156,11 @@ export const sectionHeadings = {
     title: 'Professional History',
     accent: 'neon' as Accent
   },
+  publications: {
+    tag: 'publication_log',
+    title: 'Publications',
+    accent: 'cyan' as Accent
+  },
   stack: {
     tag: 'skill_inventory',
     title: 'Tech Stack',
@@ -203,7 +208,7 @@ export const coursework = [
 export type ProjectStatus = 'shipped' | 'active' | 'completed';
 
 export type ProjectLink = {
-  label: 'Live Demo' | 'GitHub';
+  label: 'Live Demo' | 'GitHub' | 'Models' | 'Publication';
   href: string;
 };
 
@@ -275,8 +280,29 @@ export const projects: Project[] = [
     ]
   },
   {
-    id: 'lifesaver',
+    id: 'deepfake-detector',
     number: '03',
+    image: '/assets/projects/deepfake-detector/cover.png',
+    title: 'DeepFakeDetector AI (MacAI Project)',
+    subtitle: 'Multi-Branch Cross-Generator Detection System',
+    category: 'AI RESEARCH / COMPUTER VISION',
+    status: 'active',
+    date: 'Sep 2025',
+    accent: 'cyan',
+    tech: ['PyTorch', 'Vision Transformers', 'EfficientNet-B0', 'Gradient Field CNN', 'FastAPI', 'Hugging Face'],
+    impact: 'Presented at CUCAI after benchmark evaluation and live web deployment.',
+    description:
+      'Built and presented DeepFakeDetector, a multi-branch framework for detecting AI-generated images across generators, with evaluation on OpenFake and AI-GenBench.',
+    links: [
+      { label: 'Live Demo', href: 'https://www.deepfake-detector.app/' },
+      { label: 'GitHub', href: 'https://github.com/McMasterAI-Society/DeepFakeDetector' },
+      { label: 'Models', href: 'https://huggingface.co/DeepFakeDetector' },
+      { label: 'Publication', href: '#publication-deepfake-cucai' }
+    ]
+  },
+  {
+    id: 'lifesaver',
+    number: '04',
     image: '/assets/projects/lifesaver/lifesaver.jpeg',
     title: 'LifeSaver',
     subtitle: 'Real-Time Emergency Incident Triage Platform',
@@ -295,7 +321,7 @@ export const projects: Project[] = [
   },
   {
     id: 'quantamail',
-    number: '04',
+    number: '05',
     image: '/assets/projects/quantamail/quantamail.jpeg',
     title: 'QuantaMail',
     subtitle: 'Post-Quantum Encrypted Email System',
@@ -314,7 +340,7 @@ export const projects: Project[] = [
   },
   {
     id: 'sanctuary',
-    number: '05',
+    number: '06',
     image: '/assets/projects/sanctuary/sanctuary.jpeg',
     title: 'Sanctuary',
     subtitle: 'Local AI Companion',
@@ -333,7 +359,7 @@ export const projects: Project[] = [
   },
   {
     id: 'safesight-ai',
-    number: '06',
+    number: '07',
     image: '/assets/projects/safesight-ai/Safesight.jpeg',
     title: 'SafeSight AI',
     subtitle: 'Real-Time Safety Intelligence System',
@@ -352,7 +378,7 @@ export const projects: Project[] = [
   },
   {
     id: 'cms',
-    number: '07',
+    number: '08',
     image: '/assets/projects/cms/cms.png',
     title: 'Clinic Management System (CMS)',
     subtitle: 'Desktop clinic workflow manager',
@@ -377,6 +403,61 @@ export const projects: Project[] = [
   }
 ];
 
+export type Publication = {
+  id: string;
+  title: string;
+  venue: string;
+  date: string;
+  description: string;
+  status: 'published' | 'coming_soon';
+  pdfHref?: string;
+  links?: Array<{
+    label: 'LinkedIn' | 'Project' | 'GitHub' | 'Models' | 'Demo';
+    href: string;
+  }>;
+};
+
+export const publications: Publication[] = [
+  {
+    id: 'deepfake-cucai',
+    title: 'DeepFakeDetector: A Multi-Branch Fusion Framework for Cross-Generator Detection of AI-Generated Images',
+    venue: 'Canadian Undergraduate Conference on AI (CUCAI)',
+    date: 'Feb 10, 2026',
+    description:
+      'Presented research on DeepFakeDetector, a multi-branch system using ViT, DeiT, EfficientNet-B0, Gradient Field CNN, and fusion models, with benchmark evaluation and live deployment.',
+    status: 'published',
+    pdfHref: '/assets/publications/MacAI_Research.pdf',
+    links: [
+      { label: 'Demo', href: 'https://www.deepfake-detector.app/' },
+      { label: 'GitHub', href: 'https://github.com/McMasterAI-Society/DeepFakeDetector' },
+      { label: 'Models', href: 'https://huggingface.co/DeepFakeDetector' },
+      { label: 'LinkedIn', href: 'https://linkedin.com/in/vihaan-singhal-21baa6379/details/publications/' }
+    ]
+  },
+  {
+    id: 'math-vase-optimization',
+    title: 'Mathematical Optimization of Ceramic Vase Cost Using Surface Area and Volume Modeling',
+    venue: 'IB Diploma Programme — Mathematics HL Internal Assessment',
+    date: 'Mar 20, 2025',
+    description:
+      'Independent mathematical investigation modeling a ceramic vase using solids of revolution, surface area, and volume analysis to estimate cost and optimize design.',
+    status: 'published',
+    pdfHref: '/assets/publications/mathematical_optimization_ceramic_vase.pdf',
+    links: [{ label: 'LinkedIn', href: 'https://linkedin.com/in/vihaan-singhal-21baa6379/details/publications/' }]
+  },
+  {
+    id: 'physics-cooling-time',
+    title: 'Experimental Investigation of Cooling Time as a Function of Initial Water Temperature',
+    venue: 'IB Diploma Programme — Physics Internal Assessment',
+    date: 'Feb 20, 2025',
+    description:
+      'Experimental physics investigation using repeated trials and cooling curves to quantify how initial water temperature affects cooling time and thermal behavior.',
+    status: 'published',
+    pdfHref: '/assets/publications/cooling_time_initial_water_temperature.pdf',
+    links: [{ label: 'LinkedIn', href: 'https://linkedin.com/in/vihaan-singhal-21baa6379/details/publications/' }]
+  }
+];
+
 export type SkillTelemetry = {
   level: number;
   usedIn: string[];
@@ -394,6 +475,10 @@ export const skillTelemetry: Record<string, SkillTelemetry> = {
   'Node.js': { level: 90, usedIn: ['LifeSaver', 'VS Portfolio'] },
   'Express.js': { level: 89, usedIn: ['LifeSaver'] },
   Flask: { level: 88, usedIn: ['QuantaMail'] },
+  FastAPI: { level: 91, usedIn: ['SnapAid', 'DeepFakeDetector AI (MacAI Project)'] },
+  'REST APIs': { level: 90, usedIn: ['LifeSaver', 'SnapAid', 'DeepFakeDetector AI (MacAI Project)', 'QuantaMail'] },
+  Supabase: { level: 90, usedIn: ['SnapAid'] },
+  PostgreSQL: { level: 88, usedIn: ['SnapAid'] },
   'OAuth 2.0': { level: 83, usedIn: ['QuantaMail'] },
   Postman: { level: 88, usedIn: ['LifeSaver', 'QuantaMail'] },
   YOLOv8: { level: 90, usedIn: ['SafeSight AI'] },
@@ -403,6 +488,10 @@ export const skillTelemetry: Record<string, SkillTelemetry> = {
   Pandas: { level: 86, usedIn: ['SafeSight AI'] },
   Jupyter: { level: 86, usedIn: ['SafeSight AI'] },
   MobileNetV2: { level: 80, usedIn: ['SafeSight AI'] },
+  'Vision Transformers': { level: 91, usedIn: ['DeepFakeDetector AI (MacAI Project)'] },
+  'EfficientNet-B0': { level: 89, usedIn: ['DeepFakeDetector AI (MacAI Project)'] },
+  'Gradient Field CNN': { level: 88, usedIn: ['DeepFakeDetector AI (MacAI Project)'] },
+  'Fusion Models': { level: 87, usedIn: ['DeepFakeDetector AI (MacAI Project)'] },
   Ollama: { level: 81, usedIn: ['Sanctuary'] },
   MySQL: { level: 84, usedIn: ['Clinic Management System (CMS)'] },
   SQLite: { level: 78, usedIn: ['QuantaMail'] },
@@ -439,12 +528,12 @@ export const techStackGroups: TechStackGroup[] = [
   {
     title: 'Backend & APIs',
     accent: 'neon',
-    skills: ['Node.js', 'Express.js', 'Flask', 'OAuth 2.0', 'Postman']
+    skills: ['FastAPI', 'REST APIs', 'Supabase', 'PostgreSQL', 'Node.js', 'Express.js', 'Flask', 'OAuth 2.0', 'Postman']
   },
   {
     title: 'AI / ML & Vision',
     accent: 'cyan',
-    skills: ['YOLOv8', 'OpenCV', 'ONNX Runtime', 'NumPy', 'Pandas', 'Jupyter', 'MobileNetV2', 'Ollama']
+    skills: ['YOLOv8', 'OpenCV', 'ONNX Runtime', 'Vision Transformers', 'EfficientNet-B0', 'Gradient Field CNN', 'Fusion Models', 'NumPy', 'Pandas', 'Jupyter', 'MobileNetV2', 'Ollama']
   },
   {
     title: 'Data & Infra',
@@ -501,7 +590,7 @@ export const experience: Experience[] = [
     links: [
       {
         label: 'LinkedIn',
-        href: 'https://linkedin.com/in/vihaansinghal-21baa6379'
+        href: 'https://linkedin.com/in/vihaan-singhal-21baa6379'
       }
     ],
     accent: 'neon' as Accent
@@ -524,7 +613,7 @@ export const experience: Experience[] = [
     links: [
       {
         label: 'LinkedIn',
-        href: 'https://linkedin.com/in/vihaansinghal-21baa6379'
+        href: 'https://linkedin.com/in/vihaan-singhal-21baa6379'
       }
     ],
     accent: 'neon' as Accent
@@ -546,7 +635,7 @@ export const experience: Experience[] = [
     links: [
       {
         label: 'LinkedIn',
-        href: 'https://linkedin.com/in/vihaansinghal-21baa6379'
+        href: 'https://linkedin.com/in/vihaan-singhal-21baa6379'
       }
     ],
     accent: 'cyan' as Accent
@@ -569,7 +658,7 @@ export const experience: Experience[] = [
     links: [
       {
         label: 'LinkedIn',
-        href: 'https://linkedin.com/in/vihaansinghal-21baa6379'
+        href: 'https://linkedin.com/in/vihaan-singhal-21baa6379'
       }
     ],
     accent: 'neon' as Accent
@@ -594,7 +683,7 @@ export const experience: Experience[] = [
     links: [
       {
         label: 'LinkedIn',
-        href: 'https://linkedin.com/in/vihaansinghal-21baa6379'
+        href: 'https://linkedin.com/in/vihaan-singhal-21baa6379'
       }
     ],
     accent: 'cyan' as Accent
@@ -613,8 +702,8 @@ export const contact = {
     },
     {
       label: 'LinkedIn',
-      value: 'linkedin.com/in/vihaansinghal-21baa6379',
-      href: 'https://linkedin.com/in/vihaansinghal-21baa6379',
+      value: 'linkedin.com/in/vihaan-singhal-21baa6379',
+      href: 'https://linkedin.com/in/vihaan-singhal-21baa6379',
       accent: 'cyan' as Accent
     },
     {
@@ -643,7 +732,7 @@ export const footer = {
   cta: [
     {
       label: 'Resume',
-      href: 'https://linkedin.com/in/vihaansinghal-21baa6379'
+      href: '/assets/resume/vihaan_resume_v1.pdf'
     },
     {
       label: 'Contact',

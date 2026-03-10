@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { type MouseEvent, useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { ChevronLeft, ChevronRight, ExternalLink, Github, MoveUpRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink, FileText, Github, Microscope, MoveUpRight, X } from 'lucide-react';
 
 import { accentHex, projects, sectionHeadings, type Project, type ProjectLink } from '../../data/content';
 import { motionTokens } from '../../lib/motion';
@@ -15,11 +15,29 @@ const statusPalette = {
 
 const actionIcon: Record<ProjectLink['label'], typeof ExternalLink> = {
   'Live Demo': ExternalLink,
-  GitHub: Github
+  GitHub: Github,
+  Models: Microscope,
+  Publication: FileText
 };
 
 function ProjectAction({ link, accent }: { link: ProjectLink; accent: string }) {
   const Icon = actionIcon[link.label];
+  const isInternalAnchor = link.href.startsWith('#');
+
+  const handleInternalFallback = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (!isInternalAnchor) return;
+
+    const targetId = link.href.slice(1);
+    if (!targetId || document.getElementById(targetId)) return;
+
+    event.preventDefault();
+
+    const fallback = document.getElementById('publications');
+    if (fallback) {
+      fallback.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.history.replaceState(null, '', '#publications');
+    }
+  };
 
   if (link.label === 'Live Demo') {
     return (
@@ -41,8 +59,9 @@ function ProjectAction({ link, accent }: { link: ProjectLink; accent: string }) 
   return (
     <motion.a
       href={link.href}
-      target="_blank"
-      rel="noopener noreferrer"
+      onClick={handleInternalFallback}
+      target={isInternalAnchor ? undefined : '_blank'}
+      rel={isInternalAnchor ? undefined : 'noopener noreferrer'}
       whileHover={{ y: -1 }}
       transition={{ duration: 0.2 }}
       className="inline-flex items-center gap-1.5 rounded-md border border-border-bright bg-transparent px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-text transition-colors duration-300 hover:border-cyan/30 hover:text-cyan"
@@ -77,6 +96,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('project-lightbox-open');
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -97,6 +117,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = previousOverflow;
+      document.body.classList.remove('project-lightbox-open');
     };
   }, [hasCarousel, isLightboxOpen, slides.length]);
 

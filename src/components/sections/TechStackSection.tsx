@@ -25,6 +25,10 @@ const skillAliases: Record<string, string[]> = {
   HTML5: ['React', 'Vite'],
   CSS3: ['TailwindCSS'],
   'Firebase / Firestore': ['Firebase'],
+  FastAPI: ['REST APIs', 'Python'],
+  'REST APIs': ['FastAPI', 'Express.js', 'Flask', 'Node.js'],
+  Supabase: ['PostgreSQL', 'REST APIs'],
+  PostgreSQL: ['SQL', 'Supabase'],
   Jupyter: ['Python'],
   'scikit-learn': ['Python'],
   TensorFlow: ['Python'],
@@ -34,7 +38,11 @@ const skillAliases: Record<string, string[]> = {
   Matplotlib: ['Python'],
   SciPy: ['Python'],
   iOS: ['React Native', 'Flutter'],
-  Android: ['React Native', 'Flutter']
+  Android: ['React Native', 'Flutter'],
+  'Vision Transformers': ['ViT', 'DeiT', 'Fusion Models'],
+  'EfficientNet-B0': ['CNN', 'Fusion Models'],
+  'Gradient Field CNN': ['CNN', 'Fusion Models'],
+  'Fusion Models': ['Vision Transformers', 'EfficientNet-B0', 'Gradient Field CNN']
 };
 
 const skillInsights: Record<string, { summary: string; intent: string }> = {
@@ -89,6 +97,22 @@ const skillInsights: Record<string, { summary: string; intent: string }> = {
   Flask: {
     summary: 'Lean Python web framework for security-focused, service-oriented backend delivery.',
     intent: 'Expose model and cryptographic workflows through reliable API surfaces.'
+  },
+  FastAPI: {
+    summary: 'High-performance Python API framework used for typed backend services and AI orchestration.',
+    intent: 'Ship reliable backend endpoints quickly with strong validation and clean contracts.'
+  },
+  'REST APIs': {
+    summary: 'Interface design and integration patterns for predictable, interoperable backend communication.',
+    intent: 'Connect frontend, AI, and data systems through stable, testable service boundaries.'
+  },
+  Supabase: {
+    summary: 'Backend platform combining auth, database, and storage for rapid production-ready app delivery.',
+    intent: 'Accelerate product shipping while keeping data/auth workflows robust and maintainable.'
+  },
+  PostgreSQL: {
+    summary: 'Relational database engine for transactional consistency, schema rigor, and scalable querying.',
+    intent: 'Model production data cleanly and support dependable backend operations.'
   },
   Postman: {
     summary: 'API development workspace for endpoint validation, integration checks, and debugging workflows.',
@@ -165,6 +189,22 @@ const skillInsights: Record<string, { summary: string; intent: string }> = {
   'ONNX Runtime': {
     summary: 'Inference engine for portable model deployment across hardware targets.',
     intent: 'Run optimized AI models in real-world, performance-sensitive contexts.'
+  },
+  'Vision Transformers': {
+    summary: 'Attention-based architectures (ViT/DeiT) for robust cross-generator deepfake pattern learning.',
+    intent: 'Improve generalization when synthetic artifacts shift between generation models.'
+  },
+  'EfficientNet-B0': {
+    summary: 'Efficient CNN backbone used for compact yet strong visual feature extraction.',
+    intent: 'Preserve inference efficiency while keeping reliable deepfake detection signal.'
+  },
+  'Gradient Field CNN': {
+    summary: 'Gradient-sensitive CNN branch designed to capture subtle local artifact inconsistencies.',
+    intent: 'Detect texture and edge anomalies that standard appearance-only models can miss.'
+  },
+  'Fusion Models': {
+    summary: 'Multi-branch fusion strategy combining complementary model outputs for stable classification.',
+    intent: 'Increase robustness by blending global transformer features with local CNN signals.'
   },
   MobileNetV2: {
     summary: 'Efficient model architecture designed for constrained environments.',
