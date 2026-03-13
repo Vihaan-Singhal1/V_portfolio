@@ -78,6 +78,7 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
   const [activeCommandIndex, setActiveCommandIndex] = useState(0);
   const [portraitPulse, setPortraitPulse] = useState(0);
   const [isCommandsDrawerOpen, setIsCommandsDrawerOpen] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState('100dvh');
 
   const recognitionRef = useRef<RecognitionInstance | null>(null);
   const streamRef = useRef<HTMLDivElement | null>(null);
@@ -108,6 +109,29 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
   }, [input]);
 
   useEffect(() => {
+    const updateViewportHeight = () => {
+      // Use visualViewport if available (mostly for iOS Safari software keyboard)
+      const height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      setViewportHeight(`${height}px`);
+    };
+
+    updateViewportHeight();
+    
+    // Listen to resize and visualViewport resize explicitly
+    window.addEventListener('resize', updateViewportHeight);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateViewportHeight);
+    }
+
+    return () => {
+      window.removeEventListener('resize', updateViewportHeight);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updateViewportHeight);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
@@ -132,7 +156,13 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
   useEffect(() => {
     const stream = streamRef.current;
     if (!stream) return;
-    stream.scrollTo({ top: stream.scrollHeight, behavior: 'smooth' });
+
+    // Wait for DOM to paint the new message elements before measuring scroll height
+    const timer = window.setTimeout(() => {
+      stream.scrollTo({ top: stream.scrollHeight, behavior: 'smooth' });
+    }, 50);
+
+    return () => window.clearTimeout(timer);
   }, [messages, isThinking]);
 
   useEffect(() => {
@@ -353,18 +383,19 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
         transition={{ duration: reducedMotion ? 0.1 : 0.22 }}
         onMouseDown={handleBackdropMouseDown}
         className="fixed inset-0 z-[1300] bg-black/78 p-2 backdrop-blur-[1px] sm:p-4"
+        style={{ height: viewportHeight }}
       >
         <motion.div
           initial={reducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.975, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={reducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.985, y: 6 }}
           transition={{ duration: reducedMotion ? 0.1 : 0.24, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mx-auto flex h-full w-full max-w-[1260px] flex-col overflow-hidden rounded-xl border border-neon/30 bg-[radial-gradient(circle_at_0%_0%,rgba(0,200,255,0.05),transparent_34%),linear-gradient(180deg,rgba(7,7,7,0.98),rgba(3,3,3,0.98))] shadow-[0_26px_90px_rgba(0,0,0,0.58)] sm:rounded-2xl"
+          className="relative mx-auto flex h-full max-h-full w-full max-w-[1260px] flex-col overflow-hidden rounded-xl border border-neon/30 bg-[radial-gradient(circle_at_0%_0%,rgba(0,200,255,0.05),transparent_34%),linear-gradient(180deg,rgba(7,7,7,0.98),rgba(3,3,3,0.98))] shadow-[0_26px_90px_rgba(0,0,0,0.58)] sm:rounded-2xl"
           onMouseDown={(event) => event.stopPropagation()}
         >
           <span className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,170,0.08) 3px, rgba(0,255,170,0.08) 4px)' }} />
 
-          <header className="relative z-[1] flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-3 py-2.5 sm:px-5">
+          <header className="relative z-[1] flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-3 py-2 sm:px-5 sm:py-2.5">
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-dim">vihaan@vs:~/assistant</p>
 
             <div className="flex items-center gap-1.5 sm:gap-2">
@@ -400,8 +431,8 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
             </div>
           </header>
 
-          <div className="relative z-[1] grid h-full min-h-0 grid-cols-1 lg:grid-cols-[340px_1fr]">
-            <div className="hidden lg:block">
+          <div className="relative z-[1] grid h-full min-h-0 overflow-hidden grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[340px_1fr]">
+            <div className="hidden md:block">
               <IdentityPanel
                 portraitSrc={getPortraitSrc()}
                 status={displayStatus}
@@ -416,8 +447,8 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
               />
             </div>
 
-            <section className="flex min-h-0 flex-1 flex-col p-3 sm:p-5">
-              <div className="mb-2.5 rounded-xl border border-white/10 bg-black/28 p-2.5 lg:hidden">
+            <section className="flex min-h-0 flex-1 flex-col overflow-hidden p-2 sm:p-5">
+              <div className="mb-2 rounded-xl border border-white/10 bg-black/28 p-2 md:hidden">
                 <div className="flex items-center gap-2.5">
                   <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md border border-neon/25 bg-black/45">
                     <img
@@ -446,8 +477,8 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
                 </div>
               </div>
 
-              <div className="mb-2.5 -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {promptSuggestions.map((prompt) => (
+              <div className="mb-2 -mx-1 flex shrink-0 gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {(promptSuggestions || []).map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
@@ -462,7 +493,7 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
               </div>
 
               {reducedMotion ? null : (
-                <div className="assistant-wave-strip mb-2.5 rounded-md border border-white/10 bg-black/25 px-2.5 py-1.5 sm:mb-3 sm:px-3 sm:py-2">
+                <div className="assistant-wave-strip mb-2 shrink-0 rounded-md border border-white/10 bg-black/25 px-2.5 py-1.5 sm:mb-3 sm:px-3 sm:py-2">
                   <div className="assistant-wave-baseline" />
                   <div className="assistant-wave-bars">
                     {Array.from({ length: 16 }).map((_, index) => (
@@ -476,7 +507,7 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
                 </div>
               )}
 
-              <div ref={streamRef} className="min-h-0 flex-1 overflow-y-auto rounded-xl border border-white/10 bg-black/26 p-2.5 sm:p-3.5">
+              <div ref={streamRef} className="min-h-0 flex-grow basis-0 overflow-y-auto overflow-x-hidden rounded-xl border border-white/10 bg-black/26 p-2.5 sm:p-3.5">
                 <ChatStream
                   messages={messages}
                   isThinking={isThinking}
@@ -486,8 +517,8 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
               </div>
 
               <div
-                className="sticky bottom-0 z-[2] mt-2.5 rounded-xl border border-white/10 bg-black/40 p-2 sm:mt-3 sm:p-2.5"
-                style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+                className="shrink-0 z-[2] mt-2 rounded-xl border border-white/10 bg-black/40 p-2 sm:mt-3 sm:p-2.5"
+                style={{ paddingBottom: 'max(0.4rem, env(safe-area-inset-bottom))' }}
               >
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                   <button

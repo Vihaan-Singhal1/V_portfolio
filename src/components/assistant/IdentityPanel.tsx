@@ -25,7 +25,7 @@ export function IdentityPanel({
   resumeHref
 }: IdentityPanelProps) {
   return (
-    <aside className="flex min-h-0 flex-col gap-3 border-r border-white/10 p-5">
+    <aside className="flex min-h-0 flex-col gap-3 overflow-y-auto border-r border-white/10 p-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div className="rounded-xl border border-white/10 bg-black/30 p-3">
         <p className="font-mono text-[10px] tracking-[0.14em] text-cyan">vihaan@vs:~/assistant</p>
 

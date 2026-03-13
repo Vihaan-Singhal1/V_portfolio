@@ -109,7 +109,7 @@ export function HeroSection({
   }, [isDeletingRole, roleIndex, roles, shouldReduceMotion, typedRole]);
 
   return (
-    <section ref={sectionRef} id="home" className="relative z-[2] flex min-h-screen items-center overflow-hidden pt-12 md:pt-14">
+    <section ref={sectionRef} id="home" className="relative z-[2] flex min-h-[100dvh] items-center overflow-hidden pt-12 md:pt-14">
       <div className="pointer-events-none absolute inset-0">
         <div className={cn('absolute inset-0 opacity-[0.12]', allowAmbientMotion ? 'hero-gradient-drift' : '')} />
       </div>

@@ -118,6 +118,9 @@ async function maybeGetApiReply(
   const normalized = normalizeQuestion(input);
   if (!normalized) return null;
 
+  const isOpenEnded = normalized.split(' ').length > 8;
+  if (!isOpenEnded && confidence >= 0.35) return null;
+
   const cache = readCache();
   const cached = cache[normalized];
   if (cached?.content) {
@@ -126,9 +129,6 @@ async function maybeGetApiReply(
       usedApi: true
     };
   }
-
-  const isOpenEnded = normalized.split(' ').length > 8;
-  if (!isOpenEnded && confidence >= 0.35) return null;
 
   const callCount = readAiCallCount();
   if (callCount >= assistant.limits.maxAiCallsPerSession) {
@@ -189,7 +189,7 @@ export function useAssistantChat() {
   }, []);
 
   useEffect(() => {
-    if (!import.meta.env.DEV) return;
+    if (!env.DEV) return;
 
     let cancelled = false;
     const timer = window.setTimeout(() => {

@@ -129,7 +129,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-bg text-text">
+    <div className="min-h-[100dvh] overflow-x-hidden bg-bg text-text">
       <ScrollProgress />
       <ParticleField tier={runtimeEffectsTier} />
       <CursorGlow enabled={runtimeEffectsTier === 'full'} />

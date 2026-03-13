@@ -53,6 +53,17 @@ function defaultActions(): AssistantAction[] {
 
 export function buildOfflineReply(input: string, maxContextChunks: number): { reply: AssistantReply; confidence: number } {
   const query = normalize(input);
+
+  // Easter egg: Priority 1
+  if (/(i\s+)?love\s+(you|u)\b/i.test(query)) {
+    return {
+      confidence: 1.0,
+      reply: formatAssistantReply({
+        headline: 'thats nice but i only love her',
+      })
+    };
+  }
+
   const resumeHref = getResumeHref();
   const deepfakeCard = toProjectCard('deepfake-detector');
   const snapaidCard = toProjectCard('snapaid');
