@@ -382,7 +382,7 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
         exit={{ opacity: 0 }}
         transition={{ duration: reducedMotion ? 0.1 : 0.22 }}
         onMouseDown={handleBackdropMouseDown}
-        className="fixed inset-0 z-[1300] bg-black/78 p-2 backdrop-blur-[1px] sm:p-4"
+        className="fixed inset-0 z-[1300] flex flex-col bg-black/78 p-2 backdrop-blur-[1px] sm:p-4"
         style={{ height: viewportHeight }}
       >
         <motion.div
@@ -390,7 +390,7 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={reducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.985, y: 6 }}
           transition={{ duration: reducedMotion ? 0.1 : 0.24, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mx-auto flex h-full max-h-full w-full max-w-[1260px] flex-col overflow-hidden rounded-xl border border-neon/30 bg-[radial-gradient(circle_at_0%_0%,rgba(0,200,255,0.05),transparent_34%),linear-gradient(180deg,rgba(7,7,7,0.98),rgba(3,3,3,0.98))] shadow-[0_26px_90px_rgba(0,0,0,0.58)] sm:rounded-2xl"
+          className="relative mx-auto flex w-full max-w-[1260px] flex-1 flex-col overflow-hidden rounded-xl border border-neon/30 bg-[radial-gradient(circle_at_0%_0%,rgba(0,200,255,0.05),transparent_34%),linear-gradient(180deg,rgba(7,7,7,0.98),rgba(3,3,3,0.98))] shadow-[0_26px_90px_rgba(0,0,0,0.58)] sm:rounded-2xl min-h-0"
           onMouseDown={(event) => event.stopPropagation()}
         >
           <span className="pointer-events-none absolute inset-0 opacity-[0.08]" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,170,0.08) 3px, rgba(0,255,170,0.08) 4px)' }} />
@@ -432,7 +432,7 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
           </header>
 
           <div className="relative z-[1] grid flex-1 min-h-0 overflow-hidden grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[340px_1fr]">
-            <div className="hidden md:block">
+            <div className="hidden min-h-0 overflow-hidden md:block">
               <IdentityPanel
                 portraitSrc={getPortraitSrc()}
                 status={displayStatus}
@@ -447,7 +447,7 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
               />
             </div>
 
-            <section className="flex min-h-0 flex-1 flex-col overflow-hidden p-2 sm:p-5">
+            <section className="flex min-h-0 flex-1 flex-col overflow-hidden p-2 sm:p-4">
               <div className="mb-2 rounded-xl border border-white/10 bg-black/28 p-2 md:hidden">
                 <div className="flex items-center gap-2.5">
                   <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-md border border-neon/25 bg-black/45">
@@ -493,7 +493,7 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
               </div>
 
               {reducedMotion ? null : (
-                <div className="assistant-wave-strip mb-2 shrink-0 rounded-md border border-white/10 bg-black/25 px-2.5 py-1.5 sm:mb-3 sm:px-3 sm:py-2">
+                <div className="assistant-wave-strip mb-2 hidden shrink-0 rounded-md border border-white/10 bg-black/25 px-2.5 py-1.5 sm:block sm:mb-3 sm:px-3 sm:py-2">
                   <div className="assistant-wave-baseline" />
                   <div className="assistant-wave-bars">
                     {Array.from({ length: 16 }).map((_, index) => (
@@ -507,7 +507,7 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
                 </div>
               )}
 
-              <div ref={streamRef} className="min-h-0 flex-grow basis-0 overflow-y-auto overflow-x-hidden rounded-xl border border-white/10 bg-black/26 p-2.5 sm:p-3.5">
+              <div ref={streamRef} className="min-h-[80px] flex-grow basis-0 overflow-y-auto overflow-x-hidden rounded-xl border border-white/10 bg-black/26 p-2.5 sm:p-3.5">
                 <ChatStream
                   messages={messages}
                   isThinking={isThinking}
