@@ -431,7 +431,7 @@ export default function AssistantOverlay({ onClose, effectsTier }: AssistantOver
             </div>
           </header>
 
-          <div className="relative z-[1] grid h-full min-h-0 overflow-hidden grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[340px_1fr]">
+          <div className="relative z-[1] grid flex-1 min-h-0 overflow-hidden grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[340px_1fr]">
             <div className="hidden md:block">
               <IdentityPanel
                 portraitSrc={getPortraitSrc()}
