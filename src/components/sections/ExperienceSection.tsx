@@ -1,9 +1,11 @@
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react';
+import { motion, useScroll, useSpring, useTransform } from 'motion/react';
 import { useRef } from 'react';
 import { Linkedin, MapPin } from 'lucide-react';
 
 import { experience, sectionHeadings } from '../../data/content';
-import { motionTokens } from '../../lib/motion';
+import { D_FAST, EASE_OUT, motionTokens, useShouldReduceMotion } from '../../lib/motion';
+import { useDeviceTier } from '../../hooks/useDeviceTier';
+import { Reveal, Stagger, StaggerItem } from '../motion/Reveal';
 import { SectionHeading } from '../shared/SectionHeading';
 
 type ExperienceEntry = (typeof experience)[number];
@@ -73,7 +75,9 @@ function DetailBullet({
 
 export function ExperienceSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useShouldReduceMotion();
+  const { isDesktop } = useDeviceTier();
+  const canHover = isDesktop && !shouldReduceMotion;
   const groups = groupByOrganization(experience);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -105,12 +109,14 @@ export function ExperienceSection() {
   return (
     <section ref={sectionRef} className="relative z-[2] py-14 md:py-16">
       <div className="mx-auto w-full max-w-[1080px] px-6 md:px-8">
-        <SectionHeading
-          tag={sectionHeadings.experience.tag}
-          title={sectionHeadings.experience.title}
-          accent={sectionHeadings.experience.accent}
-          className="mb-6 md:mb-7"
-        />
+        <Reveal variant="fadeUp" amount={0.2}>
+          <SectionHeading
+            tag={sectionHeadings.experience.tag}
+            title={sectionHeadings.experience.title}
+            accent={sectionHeadings.experience.accent}
+            className="mb-6 md:mb-7"
+          />
+        </Reveal>
 
         <div className="relative">
           <div className="pointer-events-none absolute bottom-0 left-[40px] top-[3.1rem] hidden md:block">
@@ -133,16 +139,13 @@ export function ExperienceSection() {
             </motion.span>
           </div>
 
-          <div className="space-y-14 md:space-y-16">
+          <Stagger className="space-y-14 md:space-y-16" stagger={0.07} amount={0.12}>
             {groups.map((group, groupIndex) => (
-              <motion.article
-                key={group.org}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.18 }}
-                transition={{ duration: motionTokens.section.duration, delay: groupIndex * 0.05, ease: motionTokens.easeOutExpo }}
-                className="relative md:pl-24"
-              >
+              <StaggerItem key={group.org} variant="fadeUp">
+                <motion.article
+                  transition={{ duration: motionTokens.section.duration, delay: groupIndex * 0.02, ease: motionTokens.easeOutExpo }}
+                  className="relative md:pl-24"
+                >
                 <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
                   <div className="flex items-start gap-4">
                     <div className="relative inline-flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-white/10 bg-bg-alt/80">
@@ -181,9 +184,9 @@ export function ExperienceSection() {
                       key={`${entry.org}-${entry.role}`}
                       initial={{ opacity: 0, y: 10 }}
                       whileInView={{ opacity: 1, y: 0 }}
-                      whileHover={{ x: 4 }}
+                      whileHover={canHover ? { x: 2, y: -3, scale: 1.005 } : undefined}
                       viewport={{ once: true, amount: 0.2 }}
-                      transition={{ duration: motionTokens.card.duration, delay: roleIndex * 0.04, ease: motionTokens.easeOutExpo }}
+                      transition={{ duration: D_FAST, delay: roleIndex * 0.03, ease: EASE_OUT }}
                       className="group/role relative rounded-xl px-3 py-2 transition-colors duration-500 hover:bg-card/30"
                     >
                       <span className="absolute left-[-29px] top-[14px] hidden h-3 w-3 rounded-full border border-white/15 bg-bg transition-all duration-150 group-hover/role:border-neon group-hover/role:bg-neon/16 group-hover/role:shadow-[0_0_0_3px_rgba(0,255,170,0.12),0_0_12px_rgba(0,255,170,0.46)] md:block">
@@ -243,9 +246,10 @@ export function ExperienceSection() {
                     </motion.div>
                   ))}
                 </div>
-              </motion.article>
+                </motion.article>
+              </StaggerItem>
             ))}
-          </div>
+          </Stagger>
         </div>
       </div>
     </section>

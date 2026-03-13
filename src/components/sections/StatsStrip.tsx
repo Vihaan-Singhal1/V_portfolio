@@ -2,33 +2,34 @@ import { motion, useInView } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 
 import { accentHex, stats } from '../../data/content';
+import { Reveal, Stagger, StaggerItem } from '../motion/Reveal';
+import { D_FAST, EASE_OUT, useShouldReduceMotion } from '../../lib/motion';
+import { useDeviceTier } from '../../hooks/useDeviceTier';
 
 function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement | null>(null);
   const isInView = useInView(ref, { once: true, amount: 0.6 });
+  const shouldReduce = useShouldReduceMotion();
   const [displayValue, setDisplayValue] = useState(0);
   const lastValueRef = useRef(0);
 
   useEffect(() => {
     if (!isInView) return;
 
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
+    if (shouldReduce) {
       setDisplayValue(target);
       lastValueRef.current = target;
       return;
     }
 
-    const duration = 1900;
+    const duration = 1650;
     const start = performance.now();
     let frame = 0;
 
     const tick = (now: number) => {
       const progress = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      const settleOscillation =
-        progress > 0.55 ? Math.sin((progress - 0.55) * 18) * (1 - progress) * 0.08 : 0;
-      const next = Math.min(target, Math.max(0, target * (eased + settleOscillation)));
+      const next = Math.min(target, Math.max(0, target * eased));
 
       if (Math.abs(next - lastValueRef.current) >= 0.01 || progress === 1) {
         lastValueRef.current = next;
@@ -47,7 +48,7 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
     return () => {
       window.cancelAnimationFrame(frame);
     };
-  }, [isInView, target]);
+  }, [isInView, shouldReduce, target]);
 
   const lower = Math.floor(displayValue);
   const upper = Math.min(target, lower + 1);
@@ -61,7 +62,7 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
           style={{
             transform: `translateY(${progressToNext * 0.62}em)`,
             opacity: 1 - progressToNext,
-            filter: `blur(${progressToNext * 0.65}px)`
+            filter: `blur(${progressToNext * 0.55}px)`
           }}
         >
           {lower}
@@ -71,7 +72,7 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
           style={{
             transform: `translateY(${(progressToNext - 1) * 0.62}em)`,
             opacity: progressToNext,
-            filter: `blur(${(1 - progressToNext) * 0.55}px)`
+            filter: `blur(${(1 - progressToNext) * 0.45}px)`
           }}
         >
           {upper}
@@ -83,39 +84,38 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
 }
 
 export function StatsStrip() {
+  const { isDesktop } = useDeviceTier();
+  const shouldReduceMotion = useShouldReduceMotion();
+  const canLift = isDesktop && !shouldReduceMotion;
+
   return (
     <section className="relative z-[2] border-y border-border-bright/70 py-12">
-      <div className="mx-auto w-full max-w-[1200px] px-6 md:px-8">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
-            <motion.article
-              key={stat.label}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ y: -2, scale: 1.008 }}
-              className="relative overflow-hidden rounded-xl border border-border-bright bg-card/95 px-6 py-5 shadow-card transition-all duration-300 hover:border-neon/30 hover:shadow-[0_0_25px_rgba(0,255,170,0.08)]"
-            >
-              <div className="relative">
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.7 }}
-                  transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-                  className="font-display text-[3.6rem] font-black leading-none tracking-[-0.06em]"
-                  style={{ color: accentHex[stat.accent] }}
-                >
-                  <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                </motion.div>
-                <p className="mt-2.5 font-mono text-[11px] uppercase tracking-[0.22em] text-dim">
-                  {stat.label}
-                </p>
-              </div>
-            </motion.article>
+      <Reveal className="mx-auto w-full max-w-[1200px] px-6 md:px-8" variant="fadeUp" amount={0.2}>
+        <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.07}>
+          {stats.map((stat) => (
+            <StaggerItem key={stat.label} variant="fadeUp">
+              <motion.article
+                whileHover={canLift ? { y: -6, scale: 1.01 } : undefined}
+                whileTap={canLift ? { scale: 0.995 } : undefined}
+                transition={{ duration: D_FAST, ease: EASE_OUT }}
+                className="stat-card-hover relative overflow-hidden rounded-xl border border-border-bright bg-card/95 px-6 py-5 shadow-card transition-all duration-300 hover:border-neon/30 hover:shadow-[0_0_25px_rgba(0,255,170,0.08)]"
+              >
+                <div className="relative">
+                  <div
+                    className="font-display text-[3.6rem] font-black leading-none tracking-[-0.06em]"
+                    style={{ color: accentHex[stat.accent] }}
+                  >
+                    <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                  </div>
+                  <p className="mt-2.5 font-mono text-[11px] uppercase tracking-[0.22em] text-dim">
+                    {stat.label}
+                  </p>
+                </div>
+              </motion.article>
+            </StaggerItem>
           ))}
-        </div>
-      </div>
+        </Stagger>
+      </Reveal>
     </section>
   );
 }

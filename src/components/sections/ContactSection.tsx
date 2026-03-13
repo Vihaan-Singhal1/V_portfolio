@@ -3,6 +3,9 @@ import { motion } from 'motion/react';
 import { Github, Linkedin, Mail, Send } from 'lucide-react';
 
 import { accentHex, contact, sectionHeadings } from '../../data/content';
+import { useDeviceTier } from '../../hooks/useDeviceTier';
+import { D_FAST, EASE_OUT, useShouldReduceMotion } from '../../lib/motion';
+import { Reveal, Stagger, StaggerItem } from '../motion/Reveal';
 import { SpotlightCard } from '../shared/SpotlightCard';
 import { DevpostIcon } from '../shared/DevpostIcon';
 import { SectionHeading } from '../shared/SectionHeading';
@@ -20,12 +23,14 @@ function ContactCard({
   label,
   value,
   href,
-  accent
+  accent,
+  canHover
 }: {
   label: string;
   value: string;
   href: string;
   accent: keyof typeof accentHex;
+  canHover: boolean;
 }) {
   const Icon = iconByLabel[label] ?? Mail;
   const accentColor = accentHex[accent];
@@ -36,8 +41,9 @@ function ContactCard({
         href={href}
         target={href.startsWith('mailto:') ? undefined : '_blank'}
         rel={href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-        whileHover={{ y: -2 }}
-        transition={{ duration: 0.25 }}
+        whileHover={canHover ? { y: -6, scale: 1.01 } : undefined}
+        whileTap={canHover ? { scale: 0.995 } : undefined}
+        transition={{ duration: D_FAST, ease: EASE_OUT }}
         className="group relative block overflow-hidden rounded-xl border border-border-bright bg-card/95 px-3.5 py-3.5 text-left transition-all duration-300 hover:border-cyan/25 hover:shadow-[0_0_10px_rgba(0,200,255,0.06)]"
       >
         <span className="absolute left-0 top-0 h-full w-[2px] opacity-80" style={{ backgroundColor: accentColor }} />
@@ -61,6 +67,9 @@ export function ContactSection() {
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const shouldReduceMotion = useShouldReduceMotion();
+  const { isDesktop } = useDeviceTier();
+  const canHover = isDesktop && !shouldReduceMotion;
 
   const handleSend = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -79,31 +88,22 @@ export function ContactSection() {
     <section className="relative z-[2] py-14 pb-20 md:py-16 md:pb-20">
       <div className="mx-auto w-full max-w-[1080px] px-6 md:px-8">
         <div className="mx-auto max-w-[920px]">
-          <SectionHeading
-            tag={sectionHeadings.contact.tag}
-            title={sectionHeadings.contact.title}
-            accent={sectionHeadings.contact.accent}
-            className="mb-5 text-center"
-            titleClassName="text-[clamp(1.55rem,3.5vw,2.35rem)]"
-          />
+          <Reveal variant="fadeUp" className="mb-5 text-center" amount={0.2}>
+            <SectionHeading
+              tag={sectionHeadings.contact.tag}
+              title={sectionHeadings.contact.title}
+              accent={sectionHeadings.contact.accent}
+              className="mb-5 text-center"
+              titleClassName="text-[clamp(1.55rem,3.5vw,2.35rem)]"
+            />
 
-          <motion.p
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto mb-6 max-w-[620px] text-center text-[14px] leading-[1.72] text-text"
-          >
-            {contact.subtitle}
-          </motion.p>
+            <p className="mx-auto mb-6 max-w-[620px] text-center text-[14px] leading-[1.72] text-text">
+              {contact.subtitle}
+            </p>
+          </Reveal>
 
-          <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] lg:gap-5">
-            <motion.div
-              initial={{ opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            >
+          <Stagger className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] lg:gap-5" stagger={0.08} amount={0.2}>
+            <StaggerItem variant="fadeUp">
               <SpotlightCard className="rounded-xl" spotlightColor="rgba(0,255,170,0.04)">
                 <div className="rounded-xl border border-border-bright bg-card/95 p-5 md:p-6">
                   <h3 className="font-display text-[1.14rem] font-bold tracking-[-0.01em] text-white md:text-[1.22rem]">Send a quick message</h3>
@@ -168,7 +168,9 @@ export function ContactSection() {
 
                     <motion.button
                       type="submit"
-                      whileHover={{ y: -2 }}
+                      whileHover={canHover ? { y: -2 } : undefined}
+                      whileTap={canHover ? { scale: 0.98 } : undefined}
+                      transition={{ duration: D_FAST, ease: EASE_OUT }}
                       className="inline-flex w-full items-center justify-center gap-2.5 rounded-md border border-neon bg-neon px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.14em] text-bg sm:w-auto"
                     >
                       Send Message
@@ -177,33 +179,25 @@ export function ContactSection() {
                   </form>
                 </div>
               </SpotlightCard>
-            </motion.div>
+            </StaggerItem>
 
-            <div className="space-y-3">
-              {contact.cards.map((card, index) => (
-                <motion.div
-                  key={card.label}
-                  initial={{ opacity: 0, y: 18 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.35 }}
-                  transition={{ duration: 0.45, delay: index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                >
-                  <ContactCard label={card.label} value={card.value} href={card.href} accent={card.accent} />
-                </motion.div>
-              ))}
+            <StaggerItem variant="fadeUp">
+              <Stagger className="space-y-3" stagger={0.07} amount={0.12}>
+                {contact.cards.map((card) => (
+                  <StaggerItem key={card.label} variant="fadeUp">
+                    <ContactCard label={card.label} value={card.value} href={card.href} accent={card.accent} canHover={canHover} />
+                  </StaggerItem>
+                ))}
 
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: 0.45, delay: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                className="rounded-xl border border-border-bright bg-card/95 px-3.5 py-3"
-              >
-                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-neon">Base</p>
-                <p className="mt-1.5 text-[13px] leading-[1.7] text-text">{contact.locationLine}</p>
-              </motion.div>
-            </div>
-          </div>
+                <StaggerItem variant="fadeUp">
+                  <div className="rounded-xl border border-border-bright bg-card/95 px-3.5 py-3">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-neon">Base</p>
+                    <p className="mt-1.5 text-[13px] leading-[1.7] text-text">{contact.locationLine}</p>
+                  </div>
+                </StaggerItem>
+              </Stagger>
+            </StaggerItem>
+          </Stagger>
         </div>
       </div>
     </section>

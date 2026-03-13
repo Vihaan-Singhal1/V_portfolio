@@ -8,10 +8,11 @@ import { NoiseOverlay } from './components/effects/NoiseOverlay';
 import { ParticleField } from './components/effects/ParticleField';
 import { ScrollProgress } from './components/effects/ScrollProgress';
 import { HeroSection } from './components/sections/HeroSection';
+import { AssistantLauncher } from './components/assistant/AssistantLauncher';
 import { SectionMountGate } from './components/shared/SectionMountGate';
-import { marqueeItems, performanceConfig, type EffectsTier, uiConfig } from './data/content';
+import { assistant as assistantConfig, marqueeItems, performanceConfig, type EffectsTier, uiConfig } from './data/content';
 import { useDeviceTier } from './hooks/useDeviceTier';
-
+import { useAssistantController } from './hooks/useAssistantController';
 const StatsStrip = lazy(async () => {
   const module = await import('./components/sections/StatsStrip');
   return { default: module.StatsStrip };
@@ -59,12 +60,20 @@ const ContactSection = lazy(async () => {
   return { default: module.ContactSection };
 });
 
+const preloadAssistantOverlay = () => import('./components/assistant/AssistantOverlay');
+
+const AssistantOverlay = lazy(async () => {
+  const module = await preloadAssistantOverlay();
+  return { default: module.default };
+});
+
 function SectionLoader() {
   return <div className="h-20 w-full" aria-hidden="true" />;
 }
 
 export default function App() {
   const { isMobile, isTablet, isDesktop, prefersReducedMotion } = useDeviceTier();
+  const assistantController = useAssistantController();
 
   const runtimeEffectsTier = useMemo<EffectsTier>(() => {
     if (uiConfig.motionProfile === 'minimal') {
@@ -98,6 +107,27 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [isDesktop, runtimeEffectsTier]);
 
+  useEffect(() => {
+    if (!assistantConfig.enabled) return;
+
+    const preload = () => {
+      void preloadAssistantOverlay();
+    };
+
+    if ('requestIdleCallback' in window) {
+      const handle = (window as Window & { requestIdleCallback: (cb: () => void, opts?: { timeout?: number }) => number })
+        .requestIdleCallback(preload, { timeout: 2200 });
+      return () => {
+        if ('cancelIdleCallback' in window) {
+          (window as Window & { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(handle);
+        }
+      };
+    }
+
+    const timer = window.setTimeout(preload, 1200);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-bg text-text">
       <ScrollProgress />
@@ -108,7 +138,11 @@ export default function App() {
       <Navbar />
 
       <main className="relative z-[2]">
-        <HeroSection />
+        <HeroSection
+          assistantEnabled={assistantConfig.enabled}
+          assistantPortraitSrc={assistantConfig.ui.portraitSrc}
+          onOpenAssistant={assistantController.open}
+        />
 
         <Marquee items={marqueeItems.hero} color="#00ffaa" speed={35} />
 
@@ -178,6 +212,27 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {assistantConfig.enabled ? (
+        <AssistantLauncher
+          label={assistantConfig.launcherLabel}
+          effectsTier={runtimeEffectsTier}
+          hidden={assistantController.isOpen}
+          onOpen={assistantController.open}
+          onPrefetch={() => {
+            void preloadAssistantOverlay();
+          }}
+        />
+      ) : null}
+
+      {assistantConfig.enabled && assistantController.isOpen ? (
+        <Suspense fallback={null}>
+          <AssistantOverlay
+            onClose={assistantController.close}
+            effectsTier={runtimeEffectsTier}
+          />
+        </Suspense>
+      ) : null}
     </div>
   );
 }

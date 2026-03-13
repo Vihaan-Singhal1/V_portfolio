@@ -1,9 +1,11 @@
 import { type MouseEvent, useEffect, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { ChevronLeft, ChevronRight, ExternalLink, FileText, Github, Microscope, MoveUpRight, X } from 'lucide-react';
 
 import { accentHex, projects, sectionHeadings, type Project, type ProjectLink } from '../../data/content';
-import { motionTokens } from '../../lib/motion';
+import { D_FAST, EASE_OUT, motionTokens, useShouldReduceMotion } from '../../lib/motion';
+import { useDeviceTier } from '../../hooks/useDeviceTier';
+import { Reveal, Stagger, StaggerItem } from '../motion/Reveal';
 import { SpotlightCard } from '../shared/SpotlightCard';
 import { SectionHeading } from '../shared/SectionHeading';
 
@@ -46,7 +48,7 @@ function ProjectAction({ link, accent }: { link: ProjectLink; accent: string }) 
         target="_blank"
         rel="noopener noreferrer"
         whileHover={{ y: -1 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: D_FAST, ease: EASE_OUT }}
         className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 font-mono text-[9px] uppercase tracking-[0.12em]"
         style={{ borderColor: accent, backgroundColor: accent, color: 'var(--bg)' }}
       >
@@ -73,7 +75,9 @@ function ProjectAction({ link, accent }: { link: ProjectLink; accent: string }) 
 }
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
-  const shouldReduceMotion = useReducedMotion();
+  const { isDesktop } = useDeviceTier();
+  const shouldReduceMotion = useShouldReduceMotion();
+  const canCardHover = isDesktop && !shouldReduceMotion;
   const [hovered, setHovered] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -124,11 +128,9 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   return (
     <>
       <motion.article
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.15 }}
-        transition={{ delay: index * 0.05, duration: motionTokens.card.duration, ease: motionTokens.easeOutExpo }}
-        whileHover={{ y: -1.5 }}
+        whileHover={canCardHover ? { y: -6, scale: 1.01 } : undefined}
+        whileTap={canCardHover ? { scale: 0.995 } : undefined}
+        transition={{ duration: D_FAST, ease: EASE_OUT }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         className="group relative"
@@ -385,12 +387,7 @@ export function ProjectsSection() {
   return (
     <section className="relative z-[2] py-14 md:py-16">
       <div className="mx-auto w-full max-w-[1080px] px-6 md:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: motionTokens.section.duration, ease: motionTokens.easeOutExpo }}
-        >
+        <Reveal variant="fadeUp" amount={0.2}>
           <SectionHeading
             tag={sectionHeadings.projects.tag}
             title={sectionHeadings.projects.title}
@@ -401,13 +398,15 @@ export function ProjectsSection() {
           <p className="mb-6 max-w-[680px] text-[14px] leading-[1.72] text-text">
             Selected products and systems spanning real-time response, applied AI, cryptography, and interface-focused engineering.
           </p>
-        </motion.div>
+        </Reveal>
 
-        <div className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
+        <Stagger className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3" stagger={0.075} amount={0.12}>
           {projects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} index={index} />
+            <StaggerItem key={project.id} variant="fadeUp">
+              <ProjectCard project={project} index={index} />
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );

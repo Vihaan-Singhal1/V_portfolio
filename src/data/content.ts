@@ -2,6 +2,27 @@ export type Accent = 'neon' | 'cyan' | 'purple' | 'pink' | 'yellow' | 'red';
 export type EffectsTier = 'full' | 'reduced' | 'static';
 export type HeavySectionPolicy = 'intent' | 'nearViewport';
 export type MotionProfile = 'balanced' | 'minimal' | 'showcase';
+export type AssistantUiConfig = {
+  showNavPill: boolean;
+  thinkingDelayMs: number;
+  enableConversationMode: boolean;
+  portraitSrc: string;
+};
+
+export type AssistantConfig = {
+  enabled: boolean;
+  launcherLabel: string;
+  prompts: string[];
+  suggestedPrompts?: string[];
+  commands: string[];
+  knowledgeBaseSections: string[];
+  ui: AssistantUiConfig;
+  limits: {
+    maxHistory: number;
+    maxAiCallsPerSession: number;
+    maxContextChunks: number;
+  };
+};
 
 export const accentHex: Record<Accent, string> = {
   neon: '#00ffaa',
@@ -739,4 +760,37 @@ export const footer = {
       href: '#contact'
     }
   ]
+};
+
+
+export const assistant: AssistantConfig = {
+  enabled: true,
+  launcherLabel: 'ASK_VIHAAN',
+  prompts: [
+    'Best AI project',
+    'Tech stack',
+    'Open to internships?',
+    '30s summary',
+    '/help'
+  ],
+  suggestedPrompts: [
+    'What should I check first?',
+    'Show your best AI project',
+    "What's your tech stack?",
+    'Are you open to internships?',
+    'Give me a 30s summary'
+  ],
+  commands: ['/help', '/projects', '/experience', '/contact', '/resume', '/clear'],
+  knowledgeBaseSections: ['home', 'education', 'experience', 'projects', 'tech-stack', 'publications', 'contact'],
+  ui: {
+    showNavPill: false,
+    thinkingDelayMs: 380,
+    enableConversationMode: true,
+    portraitSrc: '/assets/chat/portrait.jpg'
+  },
+  limits: {
+    maxHistory: 20,
+    maxAiCallsPerSession: 10,
+    maxContextChunks: 3
+  }
 };
